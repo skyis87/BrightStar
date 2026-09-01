@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!--
+    namespace 要對應到你的 Java 介面（interface）的完整路徑，
+    例如你的專案套件是 com.notice.mapper，就要寫成：
+    com.notice.mapper.NoticeMapper
+    請依照你們組的實際套件名稱修改！
+-->
+<mapper namespace="com.notice.mapper.NoticeMapper">
+
+    <!--
+        resultMap：把資料庫的「欄位名稱(column)」對應到
+        Java 物件（Notice.java）的「屬性名稱(property)」
+        因為資料庫習慣用底線(main_title)，Java 習慣用駝峰式(mainTitle)，
+        所以要在這裡手動對應一次。
+    -->
+    <resultMap id="NoticeResultMap" type="com.notice.entity.Notice">
+        <id     property="id"          column="id" />
+        <result property="mainTitle"   column="main_title" />
+        <result property="subTitle"    column="sub_title" />
+        <result property="content"     column="content" />
+        <result property="category"    column="category" />
+        <result property="filePath"    column="file_path" />
+        <result property="fileName"    column="file_name" />
+        <result property="publisherId" column="publisher_id" />
+        <result property="publishDate" column="publish_date" />
+        <result property="createdAt"   column="created_at" />
+        <result property="updatedAt"   column="updated_at" />
+        <result property="status"      column="status" />
+    </resultMap>
+
+    <!-- ① 新增公告 -->
+    <!--
+        useGeneratedKeys="true" + keyProperty="id"：
+        新增後，資料庫自動產生的流水號 id 會自動塞回 Java 物件的 id 屬性，
+        這樣你新增完馬上就能拿到這筆公告的 id，不用再查一次。
+    -->
+    <insert id="insertNotice" parameterType="com.notice.entity.Notice"
+            useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO BSNotices
+            (main_title, sub_title, content, category,
+             file_path, file_name, publisher_id, publish_date, status)
+        VALUES
+            (#{mainTitle}, #{subTitle}, #{content}, #{category},
+             #{filePath}, #{fileName}, #{publisherId}, #{publishDate}, 1)
+    </insert>
+
+    <!-- ② 更新公告（只允許更新還沒被下架 status=1 的資料） -->
+    <update id="updateNotice" parameterType="com.notice.entity.Notice">
+        UPDATE BSNotices
+        SET main_title   = #{mainTitle},
+            sub_title    = #{subTitle},
+            content      = #{content},
+            category     = #{category},
+            file_path    = #{filePath},
+            file_name    = #{fileName},
+            publish_date = #{publishDate}
+        WHERE id = #{id}
+          AND status = 1
+    </update>
+
+    <!-- ③ 邏輯刪除：不是真的刪除資料，只是把 status 改成 0 -->
+    <update id="logicalDeleteNotice" parameterType="int">
+        UPDATE BSNotices
+        SET status = 0
+        WHERE id = #{id}
+    </update>
+
+    <!-- ④ 查詢：布告欄列表用，只顯示還在架上(status=1)的公告，依日期新到舊排序 -->
+    <select id="selectAllNotices" resultMap="NoticeResultMap">
+        SELECT *
+        FROM BSNotices
+        WHERE status = 1
+        ORDER BY publish_date DESC
+    </select>
+
+    <!-- ⑤ 查詢：點進去看單一公告的詳細內容 -->
+    <select id="selectNoticeById" parameterType="int" resultMap="NoticeResultMap">
+        SELECT *
+        FROM BSNotices
+        WHERE id = #{id}
+          AND status = 1
+    </select>
+
+    <!-- ⑥ 查詢：依分類篩選（例如只看總務部 GA 或人事部 HR 的公告） -->
+    <select id="selectNoticesByCategory" parameterType="string" resultMap="NoticeResultMap">
+        SELECT *
+        FROM BSNotices
+        WHERE category = #{category}
+          AND status = 1
+        ORDER BY publish_date DESC
+    </select>
+
+</mapper>
