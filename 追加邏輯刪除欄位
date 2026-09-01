@@ -1,0 +1,7 @@
+ALTER TABLE BSNotices
+  ADD COLUMN status TINYINT(1) NOT NULL DEFAULT 1 
+  COMMENT '狀態：1=正常顯示，0=已下架(邏輯刪除)';
+
+-- 順便修正外鍵指錯的問題（如果之前建表失敗，重新執行下面這行即可）
+ALTER TABLE BSNotices
+  ADD CONSTRAINT fk_notice_publisher FOREIGN KEY (publisher_id) REFERENCES BSUsers(id) ON DELETE CASCADE;
