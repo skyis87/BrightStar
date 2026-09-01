@@ -1,95 +1,147 @@
-<?xml version="1.0" encoding="UTF-8" ?>
-<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-
-<!--
-    namespace 要對應到你的 Java 介面（interface）的完整路徑，
-    例如你的專案套件是 com.notice.mapper，就要寫成：
-    com.notice.mapper.NoticeMapper
-    請依照你們組的實際套件名稱修改！
--->
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.notice.mapper.NoticeMapper">
 
-    <!--
-        resultMap：把資料庫的「欄位名稱(column)」對應到
-        Java 物件（Notice.java）的「屬性名稱(property)」
-        因為資料庫習慣用底線(main_title)，Java 習慣用駝峰式(mainTitle)，
-        所以要在這裡手動對應一次。
-    -->
-    <resultMap id="NoticeResultMap" type="com.notice.entity.Notice">
-        <id     property="id"          column="id" />
-        <result property="mainTitle"   column="main_title" />
-        <result property="subTitle"    column="sub_title" />
-        <result property="content"     column="content" />
-        <result property="category"    column="category" />
-        <result property="filePath"    column="file_path" />
-        <result property="fileName"    column="file_name" />
-        <result property="publisherId" column="publisher_id" />
-        <result property="publishDate" column="publish_date" />
-        <result property="createdAt"   column="created_at" />
-        <result property="updatedAt"   column="updated_at" />
-        <result property="status"      column="status" />
-    </resultMap>
+	<!-- resultMap：資料庫欄位 <-> Java Notice 物件屬性 的對應表 -->
+	<resultMap id="BaseResultMap" type="com.notice.entity.Notice">
+		<id column="id" jdbcType="INTEGER" property="id" />
+		<!-- <id>：專門對應主鍵欄位 -->
 
-    <!-- ① 新增公告 -->
-    <!--
-        useGeneratedKeys="true" + keyProperty="id"：
-        新增後，資料庫自動產生的流水號 id 會自動塞回 Java 物件的 id 屬性，
-        這樣你新增完馬上就能拿到這筆公告的 id，不用再查一次。
-    -->
-    <insert id="insertNotice" parameterType="com.notice.entity.Notice"
-            useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO BSNotices
-            (main_title, sub_title, content, category,
-             file_path, file_name, publisher_id, publish_date, status)
-        VALUES
-            (#{mainTitle}, #{subTitle}, #{content}, #{category},
-             #{filePath}, #{fileName}, #{publisherId}, #{publishDate}, 1)
-    </insert>
+		<result column="main_title" jdbcType="VARCHAR" property="mainTitle" />
+		<result column="sub_title" jdbcType="VARCHAR" property="subTitle" />
+		<result column="content" jdbcType="LONGVARCHAR" property="content" />
+		<result column="category" jdbcType="VARCHAR" property="category" />
+		<result column="file_path" jdbcType="VARCHAR" property="filePath" />
+		<result column="file_name" jdbcType="VARCHAR" property="fileName" />
+		<result column="publisher_id" jdbcType="INTEGER" property="publisherId" />
+		<result column="publish_date" jdbcType="DATE" property="publishDate" />
+		<result column="created_at" jdbcType="TIMESTAMP" property="createdAt" />
+		<result column="updated_at" jdbcType="TIMESTAMP" property="updatedAt" />
+		<result column="status" jdbcType="TINYINT" property="status" />
+		<!-- status：邏輯刪除標記，1=正常顯示，0=已下架。對應Java的Integer或Boolean都可以，這裡先用Integer -->
+	</resultMap>
 
-    <!-- ② 更新公告（只允許更新還沒被下架 status=1 的資料） -->
-    <update id="updateNotice" parameterType="com.notice.entity.Notice">
-        UPDATE BSNotices
-        SET main_title   = #{mainTitle},
-            sub_title    = #{subTitle},
-            content      = #{content},
-            category     = #{category},
-            file_path    = #{filePath},
-            file_name    = #{fileName},
-            publish_date = #{publishDate}
-        WHERE id = #{id}
-          AND status = 1
-    </update>
+	<!-- Base_Column_List：把常用欄位清單集中管理，之後每個SQL都能<include>共用，
+	     好處是以後表格新增欄位，只需要改這一個地方 -->
+	<sql id="Base_Column_List">
+		id, main_title, sub_title, content, category, file_path, file_name,
+		publisher_id, publish_date, created_at, updated_at, status
+	</sql>
 
-    <!-- ③ 邏輯刪除：不是真的刪除資料，只是把 status 改成 0 -->
-    <update id="logicalDeleteNotice" parameterType="int">
-        UPDATE BSNotices
-        SET status = 0
-        WHERE id = #{id}
-    </update>
 
-    <!-- ④ 查詢：布告欄列表用，只顯示還在架上(status=1)的公告，依日期新到舊排序 -->
-    <select id="selectAllNotices" resultMap="NoticeResultMap">
-        SELECT *
-        FROM BSNotices
-        WHERE status = 1
-        ORDER BY publish_date DESC
-    </select>
+	<!-- ① 查詢：動態條件查詢，依照Notice物件裡「有填」的欄位動態組WHERE條件 -->
+	<!-- 用途兩種：不帶任何條件 → 布告欄列表全撈；只帶id → 等於查單一筆詳細內容 -->
+	<select id="selectNotice" parameterType="com.notice.entity.Notice" resultMap="BaseResultMap">
+		select
+		<include refid="Base_Column_List" />
+		from BSNotices
+		where status = 1
+		<!-- 固定條件：永遠只查詢「還沒被邏輯刪除」的資料 -->
 
-    <!-- ⑤ 查詢：點進去看單一公告的詳細內容 -->
-    <select id="selectNoticeById" parameterType="int" resultMap="NoticeResultMap">
-        SELECT *
-        FROM BSNotices
-        WHERE id = #{id}
-          AND status = 1
-    </select>
+		<if test="id != null">
+			and id = #{id}
+		</if>
+		<!-- 這是公告詳細頁能查到「單一一筆」資料的關鍵：呼叫時只帶id，其他欄位都是null -->
 
-    <!-- ⑥ 查詢：依分類篩選（例如只看總務部 GA 或人事部 HR 的公告） -->
-    <select id="selectNoticesByCategory" parameterType="string" resultMap="NoticeResultMap">
-        SELECT *
-        FROM BSNotices
-        WHERE category = #{category}
-          AND status = 1
-        ORDER BY publish_date DESC
-    </select>
+		<if test="mainTitle != null and mainTitle != ''">
+			and main_title like concat('%', #{mainTitle}, '%')
+		</if>
+		<!-- 模糊查詢，例如布告欄搜尋框輸入關鍵字找標題 -->
+
+		<if test="category != null and category != ''">
+			and category = #{category}
+		</if>
+		<!-- category是固定選項(GA/HR)，用精確比對，不用like -->
+
+		<if test="publisherId != null">
+			and publisher_id = #{publisherId}
+		</if>
+
+		<if test="publishDate != null">
+			and publish_date = #{publishDate}
+		</if>
+
+		order by publish_date desc
+	</select>
+
+
+	<!-- ② 新增公告：選擇性新增，只有「有值」的欄位才會被寫進SQL -->
+	<insert id="insertNotice" parameterType="com.notice.entity.Notice"
+		useGeneratedKeys="true" keyProperty="id">
+		insert into BSNotices
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<!-- 【重點】沒有寫"id,"，因為id是自動遞增主鍵，交給資料庫自己產生 -->
+
+			<if test="mainTitle != null">main_title,</if>
+			<if test="subTitle != null">sub_title,</if>
+			<if test="content != null">content,</if>
+			<if test="category != null">category,</if>
+			<if test="filePath != null">file_path,</if>
+			<if test="fileName != null">file_name,</if>
+			<if test="publisherId != null">publisher_id,</if>
+			<if test="publishDate != null">publish_date,</if>
+			status,
+			<!-- status無條件一定寫入，理由和created_at一樣：不該讓前端決定，新增時固定是1(正常顯示) -->
+			<!-- created_at / updated_at 這裡故意沒寫，因為建表時已經設定 DEFAULT CURRENT_TIMESTAMP，
+			     資料庫會自動填入，不需要在INSERT裡手動指定 -->
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<!-- INSERT的VALUES括號規則：只能按順序列出「值」，不能寫成"欄位=值" -->
+
+			<if test="mainTitle != null">#{mainTitle,jdbcType=VARCHAR},</if>
+			<if test="subTitle != null">#{subTitle,jdbcType=VARCHAR},</if>
+			<if test="content != null">#{content,jdbcType=LONGVARCHAR},</if>
+			<if test="category != null">#{category,jdbcType=VARCHAR},</if>
+			<if test="filePath != null">#{filePath,jdbcType=VARCHAR},</if>
+			<if test="fileName != null">#{fileName,jdbcType=VARCHAR},</if>
+			<if test="publisherId != null">#{publisherId,jdbcType=INTEGER},</if>
+			<if test="publishDate != null">#{publishDate,jdbcType=DATE},</if>
+			1,
+		</trim>
+	</insert>
+
+
+	<!-- ③ 更新公告：選擇性更新，只更新「有值」的欄位（成員B的一般編輯功能用這支） -->
+	<update id="updateNotice" parameterType="com.notice.entity.Notice">
+		update BSNotices
+		<set>
+			<!-- <set>：自動加上SET關鍵字，並自動處理欄位間的逗號，最後一個if也不會多逗號 -->
+
+			<if test="mainTitle != null and mainTitle != ''">
+				main_title = #{mainTitle,jdbcType=VARCHAR},
+			</if>
+			<if test="subTitle != null">
+				sub_title = #{subTitle,jdbcType=VARCHAR},
+			</if>
+			<if test="content != null and content != ''">
+				content = #{content,jdbcType=LONGVARCHAR},
+			</if>
+			<if test="category != null and category != ''">
+				category = #{category,jdbcType=VARCHAR},
+			</if>
+			<if test="filePath != null">
+				file_path = #{filePath,jdbcType=VARCHAR},
+			</if>
+			<if test="fileName != null">
+				file_name = #{fileName,jdbcType=VARCHAR},
+			</if>
+			<if test="publishDate != null">
+				publish_date = #{publishDate,jdbcType=DATE},
+			</if>
+			<!-- 這裡沒有寫 updated_at = NOW()，因為建表時已經設定 ON UPDATE CURRENT_TIMESTAMP，
+			     MySQL只要偵測到這筆資料被UPDATE，就會自動幫你更新這個欄位 -->
+		</set>
+		where id = #{id,jdbcType=INTEGER}
+		and status = 1
+	</update>
+
+
+	<!-- ④ 邏輯刪除：獨立成一支單純的SQL，讓成員B的「刪除」按鈕呼叫，
+	     跟上面③的一般編輯功能分開，權限檢查與操作紀錄比較容易區分 -->
+	<update id="logicalDeleteNotice" parameterType="int">
+		update BSNotices
+		set status = 0
+		where id = #{id,jdbcType=INTEGER}
+	</update>
 
 </mapper>
