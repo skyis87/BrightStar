@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="zh-TW">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>會員登入 - brightStar</title>
+    <link rel="stylesheet" href="../css/login.css" />
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="../JS/login.js" defer></script>
+  </head>
+  <body>
+    <!-- 首頁觸發按鈕 -->
+    <button id="openModalBtn">開啟登入</button>
+
+    <!-- 登入彈窗 -->
+    <div id="loginModal" class="modal">
+      <div class="modal-content">
+        <span id="closeBtn" class="close">&times;</span>
+        <h3>使用者登入</h3>
+        
+        <form id="loginForm">
+          <div class="input-group">
+            <label for="username">帳號：</label>
+            <input
+              type="text"
+              placeholder="請輸入帳號"
+              class="AP"
+              id="username"
+              autocomplete="username"
+            />
+          </div>
+
+          <div class="input-group">
+            <label for="password">密碼：</label>
+            <input
+              type="password"
+              placeholder="請輸入密碼"
+              class="AP"
+              id="password"
+              autocomplete="current-password"
+            />
+          </div>
+
+          <!-- 錯誤提示區域 -->
+          <div id="msg" class="msg-box"></div>
+
+          <input type="button" value="確定登入" id="confirmBtn" />
+        </form>
+      </div>
+    </div>
+  </body>
+</html>
