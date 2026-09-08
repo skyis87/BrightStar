@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.mapper.BsnoticesMapper">
+
+  <resultMap id="BaseResultMap" type="com.example.demo.entity.Bsnotices">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="main_title" jdbcType="VARCHAR" property="mainTitle" />
+    <result column="sub_title" jdbcType="VARCHAR" property="subTitle" />
+    <result column="category" jdbcType="VARCHAR" property="category" />
+    <result column="file_path" jdbcType="VARCHAR" property="filePath" />
+    <result column="file_name" jdbcType="VARCHAR" property="fileName" />
+    <result column="publisher_id" jdbcType="INTEGER" property="publisherId" />
+    <result column="publish_date" jdbcType="DATE" property="publishDate" />
+    <result column="is_deleted" jdbcType="INTEGER" property="isDeleted" />
+    <result column="created_at" jdbcType="TIMESTAMP" property="createdAt" />
+    <result column="updated_at" jdbcType="TIMESTAMP" property="updatedAt" />
+  </resultMap>
+
+  <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="com.example.demo.entity.Bsnotices">
+    <result column="content" jdbcType="LONGVARCHAR" property="content" />
+  </resultMap>
+
+  <sql id="Base_Column_List">
+    id, main_title, sub_title, category, file_path, file_name, publisher_id, publish_date, 
+    is_deleted, created_at, updated_at
+  </sql>
+
+  <sql id="Blob_Column_List">
+    content
+  </sql>
+
+  <!-- [動態查詢] 包含 id 多條件篩選與未刪除過濾 (is_deleted = 0) -->
+  <select id="selectSelective" parameterType="com.example.demo.entity.Bsnotices" resultMap="ResultMapWithBLOBs">
+    select 
+      <include refid="Base_Column_List" />,
+      <include refid="Blob_Column_List" />
+    from bsnotices
+    where is_deleted = 0
+    <if test="id != null">
+      and id = #{id}
+    </if>
+    <if test="mainTitle != null and mainTitle != ''">
+      and main_title like concat('%', #{mainTitle}, '%')
+    </if>
+    <if test="category != null and category != ''">
+      and category like concat('%', #{category}, '%')
+    </if> 
+  </select>
+
+  <!-- [新增資料] 自動將 is_deleted 設為 0，且建立/更新時間設為 NOW() -->
+  <insert id="insertSelective" parameterType="com.example.demo.entity.Bsnotices">
+    insert into bsnotices
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="mainTitle != null">
+        main_title,
+      </if>
+      <if test="subTitle != null">
+        sub_title,
+      </if>
+      <if test="category != null">
+        category,
+      </if>
+      <if test="filePath != null">
+        file_path,
+      </if>
+      <if test="fileName != null">
+        file_name,
+      </if>
+      <if test="publisherId != null">
+        publisher_id,
+      </if>
+      <if test="publishDate != null">
+        publish_date,
+      </if>
+      is_deleted,
+      created_at,
+      updated_at,
+      <if test="content != null">
+        content,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="mainTitle != null">
+        #{mainTitle,jdbcType=VARCHAR},
+      </if>
+      <if test="subTitle != null">
+        #{subTitle,jdbcType=VARCHAR},
+      </if>
+      <if test="category != null">
+        #{category,jdbcType=VARCHAR},
+      </if>
+      <if test="filePath != null">
+        #{filePath,jdbcType=VARCHAR},
+      </if>
+      <if test="fileName != null">
+        #{fileName,jdbcType=VARCHAR},
+      </if>
+      <if test="publisherId != null">
+        #{publisherId,jdbcType=INTEGER},
+      </if>
+      <if test="publishDate != null">
+        #{publishDate,jdbcType=DATE},
+      </if>
+      0,
+      NOW(),
+      NOW(),
+      <if test="content != null">
+        #{content,jdbcType=LONGVARCHAR},
+      </if>
+    </trim>
+  </insert>
+
+  <!-- [選擇性更新] 自動更新 updated_at 時間 -->
+  <update id="updateSelective" parameterType="com.example.demo.entity.Bsnotices">
+    update bsnotices
+    <set>
+      <if test="mainTitle != null">
+        main_title = #{mainTitle,jdbcType=VARCHAR},
+      </if>
+      <if test="subTitle != null">
+        sub_title = #{subTitle,jdbcType=VARCHAR},
+      </if>
+      <if test="category != null">
+        category,jdbcType=VARCHAR},
+      </if>
+      <if test="filePath != null">
+        file_path = #{filePath,jdbcType=VARCHAR},
+      </if>
+      <if test="fileName != null">
+        file_name = #{fileName,jdbcType=VARCHAR},
+      </if>
+      <if test="publisherId != null">
+        publisher_id = #{publisherId,jdbcType=INTEGER},
+      </if>
+      <if test="publishDate != null">
+        publish_date = #{publishDate,jdbcType=DATE},
+      </if>
+      <if test="content != null">
+        content = #{content,jdbcType=LONGVARCHAR},
+      </if>
+      updated_at = NOW()
+    </set>
+    where id = #{id,jdbcType=INTEGER} and is_deleted = 0
+  </update>
+
+  <!-- [軟刪除] 更新 is_deleted 為 1 -->
+  <update id="deleteSelective" parameterType="java.lang.Integer">
+    update bsnotices
+    set is_deleted = 1,
+        updated_at = NOW()
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+
+</mapper>

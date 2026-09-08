@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.mapper.BsusersMapper">
+
+  <resultMap id="BaseResultMap" type="com.example.demo.entity.Bsusers">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="username" jdbcType="VARCHAR" property="username" />
+    <result column="password" jdbcType="VARCHAR" property="password" />
+    <result column="real_name" jdbcType="VARCHAR" property="realName" />
+    <result column="role" jdbcType="VARCHAR" property="role" />
+    <result column="is_deleted" jdbcType="INTEGER" property="isDeleted" />
+    <result column="created_at" jdbcType="TIMESTAMP" property="createdAt" />
+  </resultMap>
+
+  <sql id="Base_Column_List">
+    id, username, password, real_name, role, is_deleted, created_at
+  </sql>
+
+  <!-- [動態查詢] 包含 id、username、realName 等條件篩選與未刪除過濾 (is_deleted = 0) -->
+  <select id="selectSelective" parameterType="com.example.demo.entity.Bsusers" resultMap="BaseResultMap">
+    select 
+      <include refid="Base_Column_List" />
+    from bsusers
+    where is_deleted = 0
+    <if test="id != null">
+      and id = #{id}
+    </if>
+    <if test="username != null and username != ''">
+      and username like concat('%', #{username}, '%')
+    </if>
+    <if test="realName != null and realName != ''">
+      and real_name like concat('%', #{realName}, '%')
+    </if>
+    <if test="role != null and role != ''">
+      and role = #{role}
+    </if>
+  </select>
+
+  <!-- [新增資料] 自動將 is_deleted 設為 0，且建立時間設為 NOW() -->
+  <insert id="insertSelective" parameterType="com.example.demo.entity.Bsusers">
+    insert into bsusers
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="username != null">
+        username,
+      </if>
+      <if test="password != null">
+        password,
+      </if>
+      <if test="realName != null">
+        real_name,
+      </if>
+      <if test="role != null">
+        role,
+      </if>
+      is_deleted,
+      created_at,
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="username != null">
+        #{username,jdbcType=VARCHAR},
+      </if>
+      <if test="password != null">
+        #{password,jdbcType=VARCHAR},
+      </if>
+      <if test="realName != null">
+        #{realName,jdbcType=VARCHAR},
+      </if>
+      <if test="role != null">
+        #{role,jdbcType=VARCHAR},
+      </if>
+      0,
+      NOW(),
+    </trim>
+  </insert>
+
+  <!-- [選擇性更新] -->
+  <update id="updateSelective" parameterType="com.example.demo.entity.Bsusers">
+    update bsusers
+    <set>
+      <if test="username != null">
+        username = #{username,jdbcType=VARCHAR},
+      </if>
+      <if test="password != null">
+        password = #{password,jdbcType=VARCHAR},
+      </if>
+      <if test="realName != null">
+        real_name = #{realName,jdbcType=VARCHAR},
+      </if>
+      <if test="role != null">
+        role = #{role,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER} and is_deleted = 0
+  </update>
+
+  <!-- [軟刪除] 更新 is_deleted 為 1 -->
+  <update id="deleteSelective" parameterType="java.lang.Integer">
+    update bsusers
+    set is_deleted = 1
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+
+</mapper>
