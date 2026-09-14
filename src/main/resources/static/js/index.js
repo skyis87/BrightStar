@@ -1,7 +1,9 @@
 $(document).ready(function () {
-    // 1. 即時密碼長度檢查
+
+    // 🔹 即時密碼檢查
     $('#password').on('input', function () {
         const val = $(this).val();
+
         if (val.length > 0 && val.length < 6) {
             $('#msg').text('密碼長度至少需要 6 個字！').css('color', 'red');
         } else {
@@ -9,11 +11,13 @@ $(document).ready(function () {
         }
     });
 
-    // 2. 處理登入的核心功能
+    // 🔹 登入核心
     function handleLogin() {
+
         const usernameValue = $('#username').val().trim();
         const passwordValue = $('#password').val().trim();
 
+        // 防呆
         if (usernameValue === '' || passwordValue === '') {
             $('#msg').text('請填寫帳號與密碼！').css('color', 'red');
             return;
@@ -26,48 +30,62 @@ $(document).ready(function () {
 
         $('#msg').text('登入中...').css('color', 'black');
 
+        //  關鍵：用 JSON 傳送
         $.ajax({
             url: '/api/login',
-            type: 'post',
-            data: {
+            type: 'POST',
+            contentType: 'application/json',   
+            dataType: 'json',
+            data: JSON.stringify({             
                 username: usernameValue,
                 password: passwordValue
-            },
-            dataType: 'json',
+            }),
+
             success: function (result) {
-                if (result.success) {
-                    $('#msg').css('color', 'green').text('登入成功！頁面跳轉中...');
-                    localStorage.setItem('userRole', result.role);
-                    setTimeout(function () {
-                        window.location.href = 'notice-list.html';
-                    }, 1000);
+
+				if (result.success) {
+				    $('#msg').css('color', 'green').text('登入成功！頁面跳轉中...');
+
+				    // 將後端回傳的權限角色寫入 localStorage（預設為 'EMPLOYEE'）
+				    localStorage.setItem('userRole', result.role || 'EMPLOYEE');
+
+					setTimeout(function () {
+					    window.location.href = '/portalHome'; // 改成跳轉至入口頁
+					}, 1000);
+				
+
                 } else {
                     $('#msg').css('color', 'red').text(result.message || '帳號或密碼錯誤！');
                 }
             },
-            error: function () {
-                if (usernameValue === 'ga_admin' && passwordValue === 'admin123') {
-                    $('#msg').css('color', 'green').text('測試登入成功（GA 權限）！');
-                    localStorage.setItem('userRole', 'GA');
-                    setTimeout(function () {
-                        $('#loginModal').fadeOut();
-                    }, 1000);
+
+            error: function (xhr) {
+
+                console.log("錯誤狀態:", xhr.status);
+                console.log("回傳內容:", xhr.responseText);
+
+                if (xhr.status === 415) {
+                    $('#msg').css('color', 'red').text('資料格式錯誤（不是 JSON）');
+                } else if (xhr.status === 500) {
+                    $('#msg').css('color', 'red').text('伺服器錯誤（後端問題）');
                 } else {
-                    $('#msg').css('color', 'red').text('伺服器連線失敗或帳號密碼錯誤！');
+                    $('#msg').css('color', 'red').text('登入失敗，請稍後再試');
                 }
             }
         });
     }
 
-    // 3. 事件綁定與彈窗控制
+    // 🔹 按鈕點擊
     $('#confirmBtn').on('click', handleLogin);
 
+    // 🔹 Enter 送出
     $('#password').on('keypress', function (e) {
         if (e.key === 'Enter') {
             handleLogin();
         }
     });
 
+    // 🔹 Modal 控制
     $('#openModalBtn').on('click', function () {
         $('#loginModal').fadeIn();
         $('#msg').text('');
@@ -82,4 +100,5 @@ $(document).ready(function () {
             $('#loginModal').fadeOut();
         }
     });
+
 });

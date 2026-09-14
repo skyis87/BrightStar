@@ -80,6 +80,19 @@
 	</dependencies>
 
 	<build>
+		<!-- 新增資源加載設定：確保 src/main/java 下的 XML 不會被 Maven 過濾掉 -->
+		<resources>
+			<resource>
+				<directory>src/main/java</directory>
+				<includes>
+					<include>**/*.xml</include>
+				</includes>
+			</resource>
+			<resource>
+				<directory>src/main/resources</directory>
+			</resource>
+		</resources>
+
 		<plugins>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>

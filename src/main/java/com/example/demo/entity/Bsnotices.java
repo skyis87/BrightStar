@@ -124,22 +124,6 @@ public class Bsnotices {
         this.content = content;
     }
 
-	public Bsnotices(Integer id, String mainTitle, String subTitle, String category, String filePath, String fileName,
-			Integer publisherId, LocalDate publishDate, Integer isDeleted, LocalDateTime createdAt,
-			LocalDateTime updatedAt, String content) {
-		super();
-		this.id = id;
-		this.mainTitle = mainTitle;
-		this.subTitle = subTitle;
-		this.category = category;
-		this.filePath = filePath;
-		this.fileName = fileName;
-		this.publisherId = publisherId;
-		this.publishDate = publishDate;
-		this.isDeleted = isDeleted;
-		this.createdAt = createdAt;
-		this.updatedAt = updatedAt;
-		this.content = content;
-	}
+
     
 }

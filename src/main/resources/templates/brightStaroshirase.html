@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="zh-TW" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Brightstar - 公告首頁</title>
+  <link rel="stylesheet" th:href="@{/css/brightStaroshirase.css}" href="/css/brightStaroshirase.css">
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+</head>
+
+<body>
+  <header class="header">
+    <div class="brand">
+      <div class="brand-mark"></div>
+      <span>Brightstar</span>
+    </div>
+
+    <div class="header-right">
+      <!-- 顯示使用者名稱 -->
+      <span class="user-name" th:text="${session.loginUser != null ? session.loginUser.username : '訪客'}">使用者</span>
+      
+      <!-- 動態顯示權限標籤 (HR 與 GA 顯示為管理者稱呼，其餘為一般) -->
+      <span class="role-badge" id="roleBadge" 
+            th:text="${session.loginUser != null && (session.loginUser.role == 'HR' || session.loginUser.role == 'GA') ? (session.loginUser.role == 'HR' ? '人事' : '総務') : '一般'}">一般</span>
+      
+      <!-- 登出按鈕 -->
+      <a th:href="@{/logout}" class="logout-btn">ログアウト</a>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="hero-image">
+        MAIN IMAGE
+      </div>
+
+      <div class="hero-copy">
+        <div class="hero-kicker">BRIGHTSTAR INTERNAL PORTAL</div>
+        <h1 class="hero-title">Information</h1>
+        <div class="hero-line"></div>
+        <p class="hero-desc">
+          Brightstarからのお知らせを掲載しています。<br>
+          社内の最新情報をご確認ください。
+        </p>
+      </div>
+    </section>
+
+    <div class="latest-wrap">
+      <section class="section">
+        <div class="section-head">
+          <div class="section-title-wrap">
+            <div class="section-jp">最新のお知らせ</div>
+            <h2 class="section-title">Latest</h2>
+          </div>
+
+          <!-- HR / GA 專用新增與管理按鈕 -->
+          <div class="admin-only admin-tools">
+            <button class="admin-btn primary">＋ 新規作成</button>
+            <button class="admin-btn secondary">お知らせ管理</button>
+          </div>
+        </div>
+
+        <article class="latest-card">
+          <div class="latest-image">
+            LATEST IMAGE
+          </div>
+
+          <div class="latest-body">
+            <span class="notice-label">Important</span>
+            <div class="notice-date">2026.09.08</div>
+            <h3 class="latest-title">
+              社内ポータルサイトをリニューアルしました
+            </h3>
+            <p class="latest-text">
+              Brightstar社内ポータルをご利用いただきありがとうございます。
+              今後、社内イベントや重要なお知らせなどをこちらで随時ご案内します。
+            </p>
+
+            <a href="#" class="read-more">
+              Read More <span></span> →
+            </a>
+
+            <!-- HR / GA 專用修改與刪除按鈕 -->
+            <div class="admin-only" style="margin-top:24px;">
+              <button class="mini-btn">変更</button>
+              <button class="mini-btn delete">削除</button>
+            </div>
+          </div>
+        </article>
+      </section>
+    </div>
+
+    <section class="section">
+      <div class="section-head">
+        <div class="section-title-wrap">
+          <div class="section-jp">過去のお知らせ</div>
+          <h2 class="section-title">Archive</h2>
+        </div>
+      </div>
+
+      <div class="notice-grid">
+        <article class="notice-card">
+          <div class="notice-icon">
+            <div class="icon-circle"></div>
+          </div>
+          <div class="notice-body">
+            <div class="notice-meta">
+              <span>News</span>
+              <span>2026.09.01</span>
+            </div>
+            <h3 class="notice-title">9月の社内スケジュールについて</h3>
+          </div>
+          <div class="admin-only card-admin">
+            <button class="mini-btn">変更</button>
+            <button class="mini-btn delete">削除</button>
+          </div>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-brand">Brightstar</div>
+    <div>©Brightstar</div>
+  </footer>
+
+  <!-- 權限判定 JS -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const roleBadge = document.getElementById("roleBadge");
+      const adminItems = document.querySelectorAll(".admin-only");
+
+      // 從 localStorage 取得登入時寫入的權限角色
+      const userRole = (localStorage.getItem("userRole") || "").toUpperCase();
+
+      // 判斷是否屬於管理者組 (HR 或 GA)
+      const isAdminGroup = (userRole === "HR" || userRole === "GA");
+
+      // 根據權限決定增刪改區塊的顯隱
+      adminItems.forEach(item => {
+        item.style.display = isAdminGroup ? "" : "none";
+      });
+
+      // 更新 Badge 顯示名稱
+      if (roleBadge) {
+        if (userRole === "HR") {
+          roleBadge.textContent = "人事";
+        } else if (userRole === "GA") {
+          roleBadge.textContent = "総務";
+        } else {
+          roleBadge.textContent = "一般";
+        }
+      }
+    });
+  </script>
+</body>
+</html>

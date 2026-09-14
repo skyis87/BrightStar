@@ -73,16 +73,6 @@ public class Bsusers {
         this.createdAt = createdAt;
     }
 
-	public Bsusers(Integer id, String username, String password, String realName, String role, Integer isDeleted,
-			LocalDateTime createdAt) {
-		super();
-		this.id = id;
-		this.username = username;
-		this.password = password;
-		this.realName = realName;
-		this.role = role;
-		this.isDeleted = isDeleted;
-		this.createdAt = createdAt;
-	}
+
     
 }
