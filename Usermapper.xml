@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- 請依照你們組實際的套件名稱修改 namespace -->
+<mapper namespace="com.notice.mapper.UserMapper">
+
+    <resultMap id="UserResultMap" type="com.notice.entity.User">
+        <id     property="id"        column="id" />
+        <result property="username"  column="username" />
+        <result property="password"  column="password" />
+        <result property="realName"  column="real_name" />
+        <result property="role"      column="role" />
+        <result property="createdAt" column="created_at" />
+    </resultMap>
+
+    <!-- 登入時用：輸入帳號查詢這個人的完整資料（含密碼、角色） -->
+    <select id="selectUserByUsername" parameterType="string" resultMap="UserResultMap">
+        SELECT *
+        FROM BSUsers
+        WHERE username = #{username}
+    </select>
+
+    <!-- 依 id 查詢使用者：例如公告詳細頁要顯示「發布人：王小明」時用 -->
+    <select id="selectUserById" parameterType="int" resultMap="UserResultMap">
+        SELECT *
+        FROM BSUsers
+        WHERE id = #{id}
+    </select>
+
+</mapper>
