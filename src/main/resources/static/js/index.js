@@ -75,17 +75,17 @@ $(document).ready(function () {
         });
     }
 
-    // 🔹 按鈕點擊
+    //  按鈕點擊
     $('#confirmBtn').on('click', handleLogin);
 
-    // 🔹 Enter 送出
+    //  Enter 送出
     $('#password').on('keypress', function (e) {
         if (e.key === 'Enter') {
             handleLogin();
         }
     });
 
-    // 🔹 Modal 控制
+    //  Modal 控制
     $('#openModalBtn').on('click', function () {
         $('#loginModal').fadeIn();
         $('#msg').text('');

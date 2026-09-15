@@ -17,14 +17,11 @@
     </div>
 
     <div class="header-right">
-      <!-- 顯示使用者名稱 -->
-      <span class="user-name" th:text="${session.loginUser != null ? session.loginUser.username : '訪客'}">使用者</span>
+      <span class="user-name" th:text="${session.loginUser != null ? session.loginUser.username : '使用者'}">使用者</span>
       
-      <!-- 動態顯示權限標籤 (HR 與 GA 顯示為管理者稱呼，其餘為一般) -->
       <span class="role-badge" id="roleBadge" 
             th:text="${session.loginUser != null && (session.loginUser.role == 'HR' || session.loginUser.role == 'GA') ? (session.loginUser.role == 'HR' ? '人事' : '総務') : '一般'}">一般</span>
       
-      <!-- 登出按鈕 -->
       <a th:href="@{/logout}" class="logout-btn">ログアウト</a>
     </div>
   </header>
@@ -46,6 +43,7 @@
       </div>
     </section>
 
+    <!-- 最新のお知らせ區塊 (動態渲染) -->
     <div class="latest-wrap">
       <section class="section">
         <div class="section-head">
@@ -54,43 +52,19 @@
             <h2 class="section-title">Latest</h2>
           </div>
 
-          <!-- HR / GA 專用新增與管理按鈕 -->
-          <div class="admin-only admin-tools">
-            <button class="admin-btn primary">＋ 新規作成</button>
-            <button class="admin-btn secondary">お知らせ管理</button>
+          <!-- HR / GA 專用新增與管理按鈕：點擊連結至獨立表單頁 /brightStaroshirase/form -->
+          <div class="admin-only admin-tools" style="display: none;">
+            <a href="/brightStaroshirase/form" class="admin-btn primary">＋ 新規作成</a>
           </div>
         </div>
 
-        <article class="latest-card">
-          <div class="latest-image">
-            LATEST IMAGE
-          </div>
-
-          <div class="latest-body">
-            <span class="notice-label">Important</span>
-            <div class="notice-date">2026.09.08</div>
-            <h3 class="latest-title">
-              社内ポータルサイトをリニューアルしました
-            </h3>
-            <p class="latest-text">
-              Brightstar社内ポータルをご利用いただきありがとうございます。
-              今後、社内イベントや重要なお知らせなどをこちらで随時ご案内します。
-            </p>
-
-            <a href="#" class="read-more">
-              Read More <span></span> →
-            </a>
-
-            <!-- HR / GA 專用修改與刪除按鈕 -->
-            <div class="admin-only" style="margin-top:24px;">
-              <button class="mini-btn">変更</button>
-              <button class="mini-btn delete">削除</button>
-            </div>
-          </div>
-        </article>
+        <div id="latestNoticeContainer">
+          <!-- JS 動態載入最新公告 -->
+        </div>
       </section>
     </div>
 
+    <!-- 過去のお知らせ區塊 (動態渲染) -->
     <section class="section">
       <div class="section-head">
         <div class="section-title-wrap">
@@ -99,23 +73,8 @@
         </div>
       </div>
 
-      <div class="notice-grid">
-        <article class="notice-card">
-          <div class="notice-icon">
-            <div class="icon-circle"></div>
-          </div>
-          <div class="notice-body">
-            <div class="notice-meta">
-              <span>News</span>
-              <span>2026.09.01</span>
-            </div>
-            <h3 class="notice-title">9月の社内スケジュールについて</h3>
-          </div>
-          <div class="admin-only card-admin">
-            <button class="mini-btn">変更</button>
-            <button class="mini-btn delete">削除</button>
-          </div>
-        </article>
+      <div class="notice-grid" id="archiveNoticeGrid">
+        <!-- JS 動態載入歷史公告 -->
       </div>
     </section>
   </main>
@@ -125,34 +84,112 @@
     <div>©Brightstar</div>
   </footer>
 
-  <!-- 權限判定 JS -->
   <script>
-    document.addEventListener("DOMContentLoaded", function () {
-      const roleBadge = document.getElementById("roleBadge");
-      const adminItems = document.querySelectorAll(".admin-only");
-
-      // 從 localStorage 取得登入時寫入的權限角色
+    $(document).ready(function() {
+      // 1. 權限判斷
       const userRole = (localStorage.getItem("userRole") || "").toUpperCase();
-
-      // 判斷是否屬於管理者組 (HR 或 GA)
       const isAdminGroup = (userRole === "HR" || userRole === "GA");
 
-      // 根據權限決定增刪改區塊的顯隱
-      adminItems.forEach(item => {
+      document.querySelectorAll(".admin-only").forEach(item => {
         item.style.display = isAdminGroup ? "" : "none";
       });
 
-      // 更新 Badge 顯示名稱
+      const roleBadge = document.getElementById("roleBadge");
       if (roleBadge) {
-        if (userRole === "HR") {
-          roleBadge.textContent = "人事";
-        } else if (userRole === "GA") {
-          roleBadge.textContent = "総務";
-        } else {
-          roleBadge.textContent = "一般";
-        }
+        if (userRole === "HR") roleBadge.textContent = "人事";
+        else if (userRole === "GA") roleBadge.textContent = "総務";
+        else roleBadge.textContent = "一般";
       }
+
+      // 2. 載入資料庫公告
+      loadNotices();
     });
+
+    function loadNotices() {
+      $.ajax({
+        url: '/api/notices',
+        type: 'GET',
+        success: function(data) {
+          const userRole = (localStorage.getItem("userRole") || "").toUpperCase();
+          const isAdminGroup = (userRole === "HR" || userRole === "GA");
+
+          if (!data || data.length === 0) {
+            $('#latestNoticeContainer').html('<p style="color:#666;">目前沒有公告資訊。</p>');
+            $('#archiveNoticeGrid').html('');
+            return;
+          }
+
+          // 假設陣列第一筆是最新，其餘為歷史
+          const latestItem = data[0];
+          const archiveItems = data.slice(1);
+
+          // 渲染 Latest
+          const deleteBtnHtml = isAdminGroup 
+            ? `<button class="mini-btn delete" onclick="deleteNotice(${latestItem.id})">削除</button>` 
+            : '';
+
+          const latestHtml = `
+            <article class="latest-card">
+              <div class="latest-image">LATEST IMAGE</div>
+              <div class="latest-body">
+                <span class="notice-label">${latestItem.category || 'News'}</span>
+                <div class="notice-date">${latestItem.publishDate || ''}</div>
+                <h3 class="latest-title">${latestItem.mainTitle}</h3>
+                ${latestItem.subTitle ? `<p style="color:#666; font-size:13px; margin:0 0 12px;">${latestItem.subTitle}</p>` : ''}
+                <p class="latest-text">${latestItem.content}</p>
+                <a href="#" class="read-more">Read More <span></span> →</a>
+                ${isAdminGroup ? `<div style="margin-top:24px;">${deleteBtnHtml}</div>` : ''}
+              </div>
+            </article>
+          `;
+          $('#latestNoticeContainer').html(latestHtml);
+
+          // 渲染 Archive
+          let archiveHtml = '';
+          archiveItems.forEach(function(item) {
+            const archiveDelBtn = isAdminGroup 
+              ? `<button class="mini-btn delete" onclick="deleteNotice(${item.id})">削除</button>` 
+              : '';
+
+            archiveHtml += `
+              <article class="notice-card">
+                <div class="notice-icon">
+                  <div class="icon-circle">📢</div>
+                </div>
+                <div class="notice-body">
+                  <div class="notice-meta">
+                    <span>${item.category || 'News'}</span>
+                    <span>${item.publishDate || ''}</span>
+                  </div>
+                  <h3 class="notice-title">${item.mainTitle}</h3>
+                </div>
+                ${isAdminGroup ? `<div class="card-admin">${archiveDelBtn}</div>` : ''}
+              </article>
+            `;
+          });
+          $('#archiveNoticeGrid').html(archiveHtml);
+        },
+        error: function(err) {
+          console.error("載入公告失敗:", err);
+        }
+      });
+    }
+
+    function deleteNotice(id) {
+      if (!confirm('本当にこのお知らせを削除しますか？')) return;
+
+      $.ajax({
+        url: '/api/notices/' + id,
+        type: 'DELETE',
+        success: function() {
+          alert('削除しました。');
+          loadNotices();
+        },
+        error: function() {
+          alert('削除に失敗しました。');
+        }
+      });
+    }
   </script>
 </body>
 </html>
