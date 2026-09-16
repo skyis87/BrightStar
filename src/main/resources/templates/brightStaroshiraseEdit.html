@@ -1,51 +1,61 @@
-    <!DOCTYPE html>
-<html lang="zh-TW" xmlns:th="http://www.thymeleaf.org">
+<!DOCTYPE html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>BrightStar - 編輯公告</title>
+    <title>BrightStar - お知らせ編集</title>
+    <!-- 引入共用樣式與表單專屬樣式 -->
     <link rel="stylesheet" th:href="@{/css/brightStaroshiraseForm.css}" href="/css/brightStaroshiraseForm.css">
     <link rel="stylesheet" th:href="@{/css/portalHome.css}" href="/css/portalHome.css">
+    <!-- 引入 jQuery -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body>
     <div class="portal-container">
+        <!-- 頁面頂部導覽列 -->
         <header class="portal-header">
-            <h1>編輯公告</h1>
+            <h1>お知らせ編集</h1>
             <div class="user-actions">
-                <a href="/brightStaroshirase" class="btn-back">返回公告列表</a>
+                <a href="/brightStaroshirase" class="btn-back">お知らせ一覧に戻る</a>
             </div>
         </header>
 
+        <!-- 表單容器 -->
         <div class="form-container">
             <form id="editForm">
+                <!-- 大標題輸入框 -->
                 <div class="form-group">
-                    <label>大標題 <span class="required">*</span></label>
-                    <input type="text" id="mainTitle" placeholder="請輸入大標題" required>
+                    <label>大見出し <span class="required">*</span></label>
+                    <input type="text" id="mainTitle" placeholder="大見出しを入力してください" required>
                 </div>
 
+                <!-- 小標題輸入框（選填） -->
                 <div class="form-group">
-                    <label>小標題</label>
-                    <input type="text" id="subTitle" placeholder="請輸入小標題（選填）">
+                    <label>小見出し</label>
+                    <input type="text" id="subTitle" placeholder="小見出しを入力してください（任意）">
                 </div>
 
+                <!-- 分類輸入框 -->
                 <div class="form-group">
-                    <label>分類 <span class="required">*</span></label>
-                    <input type="text" id="category" placeholder="例如: GA, HR, 系統" required>
+                    <label>カテゴリ <span class="required">*</span></label>
+                    <input type="text" id="category" placeholder="例: GA, HR, システム" required>
                 </div>
 
+                <!-- 發布日期輸入框 -->
                 <div class="form-group">
-                    <label>發布日期 <span class="required">*</span></label>
+                    <label>公開日 <span class="required">*</span></label>
                     <input type="date" id="publishDate" required>
                 </div>
 
+                <!-- 公告內容文字區域 -->
                 <div class="form-group">
-                    <label>公告內容 <span class="required">*</span></label>
-                    <textarea id="content" placeholder="請輸入詳細公告內容..." rows="8" required></textarea>
+                    <label>お知らせ内容 <span class="required">*</span></label>
+                    <textarea id="content" placeholder="詳細な内容を入力してください..." rows="8" required></textarea>
                 </div>
 
+                <!-- 表單操作按鈕區 -->
                 <div class="form-actions">
-                    <button type="submit" class="btn-confirm">確認修改</button>
-                    <a href="/brightStaroshirase" class="btn-cancel">取消</a>
+                    <button type="submit" class="btn-confirm">確定</button>
+                    <a href="/brightStaroshirase" class="btn-cancel">キャンセル</a>
                 </div>
             </form>
         </div>
@@ -57,38 +67,43 @@
             const urlParams = new URLSearchParams(window.location.search);
             const noticeId = urlParams.get('id');
 
+            // 若沒有帶 id 參數則跳出警告並導回列表頁
             if (!noticeId) {
-                alert('缺少公告 ID！');
+                alert('お知らせのIDがありません！');
                 window.location.href = '/brightStaroshirase';
                 return;
             }
 
-            // 2. 頁面載入時，發送 GET 請求取得舊資料並回填
+            // 2. 頁面載入時，發送 GET 請求取得舊資料並回填至表單
             $.ajax({
                 url: '/api/notices/' + noticeId + '/edit',
                 type: 'GET',
                 success: function(item) {
                     if (item) {
+                        // 將後端取得的舊資料填入對應的輸入框中
                         $('#mainTitle').val(item.mainTitle || '');
                         $('#subTitle').val(item.subTitle || '');
                         $('#category').val(item.category || '');
                         if (item.publishDate) {
+                            // 處理日期格式，確保只取 YYYY-MM-DD
                             $('#publishDate').val(item.publishDate.split('T')[0]);
                         }
                         $('#content').val(item.content || '');
                     } else {
-                        alert('找不到該筆公告資料');
+                        alert('指定されたお知らせが見つかりません');
                         window.location.href = '/brightStaroshirase';
                     }
                 },
                 error: function() {
-                    alert('載入公告資料失敗，請檢查網路或伺服器狀態。');
+                    alert('お知らせデータの読み込みに失敗しました。ネットワークまたはサーバーの状態を確認してください。');
                 }
             });
 
-            // 3. 表單提交 (PUT 更新)
+            // 3. 監聽表單提交事件 (執行 PUT 更新請求)
             $('#editForm').submit(function(e) {
-                e.preventDefault();
+                e.preventDefault(); // 攔截預設的表單送出行為
+                
+                // 包裝要更新的資料物件
                 const noticeData = {
                     mainTitle: $('#mainTitle').val(),
                     subTitle: $('#subTitle').val(),
@@ -97,6 +112,7 @@
                     content: $('#content').val()
                 };
 
+                // 發送 PUT AJAX 請求更新資料
                 $.ajax({
                     url: '/api/notices/' + noticeId,
                     type: 'PUT',
@@ -105,11 +121,11 @@
                     success: function(res) {
                         alert(res.message);
                         if (res.success) {
-                            window.location.href = '/brightStaroshirase'; // 成功後跳轉回列表頁
+                            window.location.href = '/brightStaroshirase'; // 更新成功後跳轉回列表頁
                         }
                     },
                     error: function() {
-                        alert('更新失敗，請檢查網路或伺服器狀態。');
+                        alert('更新に失敗しました。ネットワークまたはサーバーの状態を確認してください。');
                     }
                 });
             });

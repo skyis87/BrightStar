@@ -1,29 +1,29 @@
 <!doctype html>
-<html lang="zh-TW" xmlns:th="http://www.thymeleaf.org">
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>會員登入 - brightStar</title>
+    <title>ログイン - brightStar</title>
     <link rel="stylesheet" th:href="@{/css/index.css}" href="/css/index.css" />
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script th:src="@{/js/index.js}" src="/js/index.js" defer></script>
   </head>
   <body>
     <!-- 首頁觸發按鈕 -->
-    <button id="openModalBtn">開啟登入</button>
+    <button id="openModalBtn">ログイン</button>
 
     <!-- 登入彈窗 -->
     <div id="loginModal" class="modal">
       <div class="modal-content">
         <span id="closeBtn" class="close">&times;</span>
-        <h3>使用者登入</h3>
+        <h3>ユーザーログイン</h3>
         
         <form id="loginForm">
           <div class="input-group">
-            <label for="username">帳號：</label>
+            <label for="username">アカウント：</label>
             <input
               type="text"
-              placeholder="請輸入帳號"
+              placeholder="アカウントを入力してください"
               class="AP"
               id="username"
               autocomplete="username"
@@ -31,10 +31,10 @@
           </div>
 
           <div class="input-group">
-            <label for="password">密碼：</label>
+            <label for="password">パスワード：</label>
             <input
               type="password"
-              placeholder="請輸入密碼"
+              placeholder="パスワードを入力してください"
               class="AP"
               id="password"
               autocomplete="current-password"
@@ -44,7 +44,7 @@
           <!-- 錯誤提示區域 -->
           <div id="msg" class="msg-box"></div>
 
-          <input type="button" value="確定登入" id="confirmBtn" />
+          <input type="button" value="ログイン" id="confirmBtn" />
         </form>
       </div>
     </div>
