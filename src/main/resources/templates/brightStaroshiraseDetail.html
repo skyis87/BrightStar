@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="zh-TW" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brightstar - 公告詳情</title>
+    <!-- 引入共用樣式與詳細頁專屬樣式 -->
+    <link rel="stylesheet" th:href="@{/css/brightStaroshirase.css}" href="/css/brightStaroshirase.css">
+    <link rel="stylesheet" th:href="@{/css/brightStaroshiraseDetail.css}" href="/css/brightStaroshiraseDetail.css">
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+</head>
+<body>
+    <header class="header">
+        <div class="brand">
+
+            <span>Brightstar</span>
+        </div>
+        <div class="header-right">
+            <span class="user-name" th:text="${session.loginUser != null ? session.loginUser.username : '使用者'}">使用者</span>
+            <a th:href="@{/logout}" class="logout-btn">ログアウト</a>
+        </div>
+    </header>
+
+    <main>
+        <div class="detail-container">
+			<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+			    <a href="/brightStaroshirase" class="back-link" style="margin-bottom: 0;">← 返回公告列表</a>
+			    <!-- 新增下載按鈕 -->
+			    <button id="downloadBtn" class="admin-btn light" style="display: none;">下載公告 (TXT)</button>
+			</div>
+            <div id="detailLoading" style="text-align: center; color: var(--sub); padding: 40px;">
+                載入中...
+            </div>
+
+            <div id="detailContentWrapper" style="display: none;">
+                <div class="detail-meta">
+                    <span class="notice-label" id="detailCategory" style="margin-bottom: 0;">News</span>
+                    <span id="detailDate">2026-09-16</span>
+                </div>
+
+                <h1 class="detail-main-title" id="detailMainTitle">大標題載入中</h1>
+                <div class="detail-sub-title" id="detailSubTitle" style="display: none;">副標題</div>
+
+                <div class="detail-divider"></div>
+
+                <div class="detail-content" id="detailMainContent">
+                    詳細內容載入中...
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="footer-brand">Brightstar</div>
+        <div>©Brightstar</div>
+    </footer>
+
+	<script>
+	        // 宣告全域變數用來儲存當前的公告資料
+	        let currentNotice = null;
+
+	        $(document).ready(function() {
+	            // 1. 取得網址列的 id 參數 (例如 ?id=3)
+	            const urlParams = new URLSearchParams(window.location.search);
+	            const noticeId = urlParams.get('id');
+
+	            if (!noticeId) {
+	                alert('缺少公告 ID！');
+	                window.location.href = '/brightStaroshirase';
+	                return;
+	            }
+
+	            // 2. 呼叫 API 取得單筆公告詳細資料
+	            $.ajax({
+	                url: '/api/notices/' + noticeId,
+	                type: 'GET',
+	                success: function(item) {
+	                    if (item) {
+	                        // 儲存資料並顯示下載按鈕
+	                        currentNotice = item;
+	                        $('#downloadBtn').show();
+
+	                        $('#detailCategory').text(item.category || 'News');
+	                        $('#detailDate').text(item.publishDate || '');
+	                        $('#detailMainTitle').text(item.mainTitle || '');
+	                        
+	                        if (item.subTitle) {
+	                            $('#detailSubTitle').text(item.subTitle).show();
+	                        }
+	                        
+	                        $('#detailMainContent').text(item.content || '');
+	                        
+	                        // 顯示內容區塊，隱藏載入中提示
+	                        $('#detailLoading').hide();
+	                        $('#detailContentWrapper').fadeIn(200);
+	                    } else {
+	                        alert('找不到該筆公告');
+	                        window.location.href = '/brightStaroshirase';
+	                    }
+	                },
+	                error: function() {
+	                    alert('載入公告詳細內容失敗。');
+	                    window.location.href = '/brightStaroshirase';
+	                }
+	            });
+	        });
+
+	        // 綁定下載按鈕的點擊事件
+	        $('#downloadBtn').click(function() {
+	            if (!currentNotice) return;
+
+	            // 組合下載的文字內容
+	            const fileContent = 
+	                `分類：${currentNotice.category || 'News'}\n` +
+	                `發布日期：${currentNotice.publishDate || ''}\n` +
+	                `大標題：${currentNotice.mainTitle || ''}\n` +
+	                (currentNotice.subTitle ? `副標題：${currentNotice.subTitle}\n` : '') +
+	                `----------------------------------------\n\n` +
+	                `${currentNotice.content || ''}`;
+
+	            // 建立 Blob 物件並設定編碼為 UTF-8 (支援日文與中文)
+	            const blob = new Blob([fileContent], { type: 'text/plain;charset=utf-8' });
+	            const url = URL.createObjectURL(blob);
+	            
+	            // 動態建立一個 <a> 標籤來觸發下載
+	            const a = document.createElement('a');
+	            a.href = url;
+	            // 檔名以公告標題命名（把不合法的檔名符號過濾掉）
+	            const safeTitle = (currentNotice.mainTitle || 'notice').replace(/[/\\?%*:|"<>]/g, '_');
+	            a.download = `${safeTitle}.txt`;
+	            
+	            document.body.appendChild(a);
+	            a.click();
+	            
+	            // 清理暫存物件
+	            document.body.removeChild(a);
+	            URL.revokeObjectURL(url);
+	        });
+	    </script>
+</body>
+</html>

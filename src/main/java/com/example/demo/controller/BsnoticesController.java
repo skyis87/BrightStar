@@ -34,9 +34,9 @@ public class BsnoticesController {
         return "brightStaroshirase"; 
     }
 
-    // 2. 獨立的新增公告表單頁
+    // 2. 新增公告表單頁 (改導向 brightStaroshiraseCreate)
     @GetMapping("/brightStaroshirase/form")
-    public String toOshiraseForm(HttpSession session) {
+    public String toOshiraseCreate(HttpSession session) {
         if (session.getAttribute("loginUser") == null) {
             return "redirect:/";
         }
@@ -57,9 +57,7 @@ public class BsnoticesController {
         }
 
         try {
-            // 自動帶入當前登入使用者的 ID 作為 publisherId（請確認 Bsusers 有 getId() 方法）
             notice.setPublisherId(loginUser.getId());
-            
             bsnoticesService.insertNotice(notice);
 
             result.put("success", true);
@@ -72,10 +70,17 @@ public class BsnoticesController {
 
         return result;
     }
+    
     @GetMapping("/api/notices")
     @ResponseBody
-    public List<Bsnotices> listNotices() {
-        return bsnoticesService.getAllNotices();
+    public List<Bsnotices> listNotices(HttpSession session) {
+        Bsusers loginUser = (Bsusers) session.getAttribute("loginUser");
+        
+        String role = (loginUser != null && loginUser.getRole() != null) 
+                    ? loginUser.getRole() 
+                    : "";
+
+        return bsnoticesService.getNoticesByRole(role);
     }
     
     @DeleteMapping("/api/notices/{id}")
@@ -83,12 +88,28 @@ public class BsnoticesController {
     public Map<String, Object> deleteNotice(@PathVariable Integer id) {
         Map<String, Object> result = new HashMap<>();
         try {
-            bsnoticesService.deleteNotice(id); // 呼叫你的 mapper 軟刪除
+            bsnoticesService.deleteNotice(id);
             result.put("success", true);
         } catch (Exception e) {
             e.printStackTrace();
             result.put("success", false);
         }
         return result;
+    }
+    
+ // 4. 導向「公告詳細內容」頁面
+    @GetMapping("/brightStaroshirase/detail")
+    public String toOshiraseDetail(HttpSession session) {
+        if (session.getAttribute("loginUser") == null) {
+            return "redirect:/";
+        }
+        return "brightStaroshiraseDetail";
+    }
+
+    // 5. 取得單筆公告詳細資料 API (供詳細頁 AJAX 呼叫)
+    @GetMapping("/api/notices/{id}")
+    @ResponseBody
+    public Bsnotices getNoticeDetail(@PathVariable Integer id) {
+        return bsnoticesService.getNoticeById(id);
     }
 }

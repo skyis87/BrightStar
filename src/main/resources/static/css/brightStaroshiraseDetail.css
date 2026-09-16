@@ -1,0 +1,64 @@
+/* =========================
+   BrightStar - 公告詳情頁專屬樣式
+========================== */
+
+.detail-container {
+    max-width: 840px;
+    margin: 60px auto;
+    background: #fff;
+    padding: 50px 60px;
+    box-shadow: var(--shadow);
+    border-radius: 4px;
+}
+
+.detail-meta {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 20px;
+    font-size: 13px;
+    color: var(--sub);
+}
+
+.detail-main-title {
+    font-size: 32px;
+    font-weight: 800;
+    line-height: 1.4;
+    margin: 0 0 10px;
+    color: var(--text);
+    word-break: break-all;
+}
+
+.detail-sub-title {
+    font-size: 16px;
+    color: var(--sub);
+    margin: 0 0 30px;
+    word-break: break-all;
+}
+
+.detail-divider {
+    height: 1px;
+    background: var(--line);
+    margin: 30px 0;
+}
+
+.detail-content {
+    font-size: 15px;
+    line-height: 2.2;
+    color: #333;
+    white-space: pre-wrap; /* 完整保留文章內的換行與空格 */
+    word-break: break-all;
+}
+
+.back-link {
+    display: inline-block;
+    margin-bottom: 30px;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text);
+    text-decoration: none;
+}
+
+.back-link:hover {
+    color: var(--orange);
+}

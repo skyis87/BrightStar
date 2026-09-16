@@ -31,12 +31,17 @@
   </sql>
 
   <!-- [動態查詢] 包含 id 多條件篩選與未刪除過濾 (is_deleted = 0) -->
-<select id="selectSelective" parameterType="com.example.demo.entity.Bsnotices" resultMap="ResultMapWithBLOBs">
+<select id="selectSelective" parameterType="map" resultMap="ResultMapWithBLOBs">
     select 
       <include refid="Base_Column_List" />,
       <include refid="Blob_Column_List" />
     from bsnotices
     where is_deleted = 0
+
+    <if test="filterFuture == true">
+      and publish_date &lt;= CURDATE()
+    </if>
+
     <if test="id != null">
       and id = #{id}
     </if>
@@ -46,9 +51,8 @@
     <if test="category != null and category != ''">
       and category like concat('%', #{category}, '%')
     </if> 
-    <!-- 依發布日期 DESC（新到舊），若日期相同則依 ID DESC -->
     ORDER BY publish_date DESC, id DESC
-  </select>
+</select>
 
   <!-- [新增資料] 自動將 is_deleted 設為 0，且建立/更新時間設為 NOW() -->
   <insert id="insertSelective" parameterType="com.example.demo.entity.Bsnotices">

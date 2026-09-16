@@ -515,4 +515,72 @@ button {
     flex-direction: column;
     align-items: flex-start;
   }
+  
 }
+
+/* =========================
+   Status Badge (予約中 / 尚未發布)
+========================== */
+.status-badge {
+  display: inline-block;
+  background-color: var(--orange-soft);
+  color: #b86700;
+  border: 1px solid rgba(243, 154, 34, 0.3);
+  font-size: 10px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 999px;
+  margin-left: 8px;
+  vertical-align: middle;
+  letter-spacing: 0.05em;
+}
+
+.status-badge.archive {
+  font-size: 9px;
+  padding: 2px 6px;
+  margin-left: 6px;
+}
+
+/* =========================
+   Fix Text Overflow (防止長字串撐破版面)
+========================== */
+.latest-text {
+  color: #555;
+  line-height: 1.9;
+  font-size: 14px;
+  margin: 0 0 24px;
+  
+  /* 限制最多顯示 3 行，超過的自動變成 ... */
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2; /* 可自行調整要顯示幾行，例如改成 2 或 3 */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  word-break: break-all;
+}
+
+.notice-title {
+  word-break: break-all;
+  overflow-wrap: break-word;
+}
+
+/* 讓公告標題的連結變成區塊，整個標題範圍都可以點擊 */
+.notice-title a,
+.latest-title a {
+  display: block;
+  width: 100%;
+  color: inherit;
+  text-decoration: none;
+}
+
+.notice-title a:hover,
+.latest-title a:hover {
+  color: var(--orange); /* 滑鼠懸停時變橘色，提示使用者可點擊 */
+}
+
+/* 讓每個歷史公告卡片變成相對定位基準 */
+.notice-card {
+  position: relative;
+}
+
+

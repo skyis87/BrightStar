@@ -1,5 +1,6 @@
 package com.example.demo.mapper;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.ibatis.annotations.Mapper;
 
@@ -8,7 +9,7 @@ import com.example.demo.entity.Bsnotices;
 public interface BsnoticesMapper {
 
     // 動態多條件查詢（若物件內只傳入 id，即可查出單筆）
-    List<Bsnotices> selectSelective(Bsnotices row);
+    List<Bsnotices> selectSelective(Map<String, Object> params);
 
     // 選擇性新增（自動處理 is_deleted、created_at、updated_at）
     int insertSelective(Bsnotices row);

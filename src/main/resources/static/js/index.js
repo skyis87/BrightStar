@@ -11,7 +11,7 @@ $(document).ready(function () {
         }
     });
 
-    // 🔹 登入核心
+    //  登入核心
     function handleLogin() {
 
         const usernameValue = $('#username').val().trim();
