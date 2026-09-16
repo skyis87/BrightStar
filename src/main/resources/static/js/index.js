@@ -1,36 +1,36 @@
 $(document).ready(function () {
 
-    // 🔹 即時密碼檢查
+    // 🔹 即時密碼長度檢查
     $('#password').on('input', function () {
         const val = $(this).val();
 
         if (val.length > 0 && val.length < 6) {
-            $('#msg').text('密碼長度至少需要 6 個字！').css('color', 'red');
+            $('#msg').text('パスワードは6文字以上である必要があります！').css('color', 'red');
         } else {
             $('#msg').text('');
         }
     });
 
-    //  登入核心
+    //  登入核心邏輯
     function handleLogin() {
 
         const usernameValue = $('#username').val().trim();
         const passwordValue = $('#password').val().trim();
 
-        // 防呆
+        // 防呆驗證
         if (usernameValue === '' || passwordValue === '') {
-            $('#msg').text('請填寫帳號與密碼！').css('color', 'red');
+            $('#msg').text('ユーザー名とパスワードを入力してください！').css('color', 'red');
             return;
         }
 
         if (passwordValue.length < 6) {
-            $('#msg').text('密碼長度至少需要 6 個字！').css('color', 'red');
+            $('#msg').text('パスワードは6文字以上である必要があります！').css('color', 'red');
             return;
         }
 
-        $('#msg').text('登入中...').css('color', 'black');
+        $('#msg').text('ログイン中...').css('color', 'black');
 
-        //  關鍵：用 JSON 傳送
+        //  關鍵：以 JSON 格式發送請求
         $.ajax({
             url: '/api/login',
             type: 'POST',
@@ -43,58 +43,59 @@ $(document).ready(function () {
 
             success: function (result) {
 
-				if (result.success) {
-				    $('#msg').css('color', 'green').text('登入成功！頁面跳轉中...');
+                if (result.success) {
+                    $('#msg').css('color', 'green').text('ログイン成功！ページを移動しています...');
 
-				    // 將後端回傳的權限角色寫入 localStorage（預設為 'EMPLOYEE'）
-				    localStorage.setItem('userRole', result.role || 'EMPLOYEE');
+                    // 將後端回傳的權限角色寫入 localStorage（預設為 'EMPLOYEE'）
+                    localStorage.setItem('userRole', result.role || 'EMPLOYEE');
 
-					setTimeout(function () {
-					    window.location.href = '/portalHome'; // 改成跳轉至入口頁
-					}, 1000);
-				
+                    // 延遲 1 秒後跳轉至系統入口頁
+                    setTimeout(function () {
+                        window.location.href = '/portalHome'; 
+                    }, 1000);
 
                 } else {
-                    $('#msg').css('color', 'red').text(result.message || '帳號或密碼錯誤！');
+                    $('#msg').css('color', 'red').text(result.message || 'ユーザー名またはパスワードが正しくありません！');
                 }
             },
 
             error: function (xhr) {
 
-                console.log("錯誤狀態:", xhr.status);
-                console.log("回傳內容:", xhr.responseText);
+                console.log("エラーステータス:", xhr.status);
+                console.log("レスポンス内容:", xhr.responseText);
 
                 if (xhr.status === 415) {
-                    $('#msg').css('color', 'red').text('資料格式錯誤（不是 JSON）');
+                    $('#msg').css('color', 'red').text('データ形式エラー');
                 } else if (xhr.status === 500) {
-                    $('#msg').css('color', 'red').text('伺服器錯誤（後端問題）');
+                    $('#msg').css('color', 'red').text('サーバーエラーが発生しました');
                 } else {
-                    $('#msg').css('color', 'red').text('登入失敗，請稍後再試');
+                    $('#msg').css('color', 'red').text('ログインに失敗しました。しばらくしてからもう一度お試しください');
                 }
             }
         });
     }
 
-    //  按鈕點擊
+    //  點擊登入按鈕事件
     $('#confirmBtn').on('click', handleLogin);
 
-    //  Enter 送出
+    //  密碼輸入框按下 Enter 鍵直接送出
     $('#password').on('keypress', function (e) {
         if (e.key === 'Enter') {
             handleLogin();
         }
     });
 
-    //  Modal 控制
+    //  Modal 彈跳視窗控制
     $('#openModalBtn').on('click', function () {
         $('#loginModal').fadeIn();
         $('#msg').text('');
     });
 
     $('#closeBtn').on('click', function () {
-        $('#loginModal').fadeOut();
+        $('#loginModal'].fadeOut();
     });
 
+    // 點擊 Modal 外部陰影處關閉視窗
     $(window).on('click', function (event) {
         if ($(event.target).is('#loginModal')) {
             $('#loginModal').fadeOut();
