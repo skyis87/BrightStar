@@ -1,223 +1,224 @@
-<!DOCTYPE html>
-<html lang="zh-TW" xmlns:th="http://www.thymeleaf.org">
-
+<!doctype html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
 <head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Brightstar - 公告首頁</title>
-	<link rel="stylesheet" th:href="@{/css/brightStaroshirase.css}" href="/css/brightStaroshirase.css">
-	<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Brightstar｜お知らせ</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+  <link rel="stylesheet" th:href="@{/css/common.css}" href="common.css">
+  <link rel="stylesheet" th:href="@{/css/brightStaroshirase.css}" href="brightStaroshirase.css">
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 </head>
-
 <body>
-	<header class="header">
-	        <!-- 將 brand 包在 a 標籤內，點擊即可回首頁 -->
-	        <a th:href="@{/portalHome}" href="/portalHome" class="brand" style="text-decoration: none; color: inherit;">
+  <header class="top d-flex align-items-center justify-content-between">
+    <a th:href="@{/portalHome}" href="portalHome.html" class="logo">Brightstar</a>
+    <div class="user-box d-flex align-items-center gap-3">
+      <span class="user-name" th:text="${session.loginUser != null ? session.loginUser.username : 'ゲスト'}">山田 太郎</span>
+      <span class="role" id="roleBadge">一般</span>
+      <a th:href="@{/logout}" href="index.html" class="logout">ログアウト</a>
+    </div>
+  </header>
 
-	            <span>Brightstar</span>
-	        </a>
-	        <div class="header-right">
-	            <span class="user-name" th:text="${session.loginUser != null ? session.loginUser.username : '使用者'}">使用者</span>
-	            <a th:href="@{/logout}" class="logout-btn">ログアウト</a>
-	        </div>
-	    </header>
+  <main>
+    <section class="main-box page-width">
+      <div class="row align-items-center g-4 g-lg-5">
+        <div class="col-lg-7">
+          <div class="main-photo">
+            <img th:src="@{/images/main.jpg}" src="images/main.jpg" alt="Brightstar お知らせメイン画像">
+          </div>
+        </div>
+        <div class="col-lg-5">
+          <div class="small-title">BRIGHTSTAR INTERNAL PORTAL</div>
+          <h1 class="big-title">Information</h1>
+          <div class="black-line"></div>
+          <p class="main-text">Brightstarからのお知らせを掲載しています。<br>社内の最新情報をご確認ください。</p>
+        </div>
+      </div>
+    </section>
 
-	<main>
-		<section class="hero">
-			<div class="hero-image">
-				MAIN IMAGE
-			</div>
+    <div class="latest-area">
+      <section class="content-box page-width">
+        <div class="content-head d-flex align-items-end justify-content-between gap-3">
+          <div>
+            <p class="jp-title">最新のお知らせ</p>
+            <h2 class="en-title">Latest</h2>
+          </div>
+          <div class="admin-only" style="display: none;">
+            <a th:href="@{/brightStaroshirase/form}" href="brightStaroshiraseForm.html" class="btn main-btn">＋ 新規作成</a>
+          </div>
+        </div>
+        <div id="latestNotice"></div>
+      </section>
+    </div>
 
-			<div class="hero-copy">
-				<div class="hero-kicker">BRIGHTSTAR INTERNAL PORTAL</div>
-				<h1 class="hero-title">Information</h1>
-				<div class="hero-line"></div>
-				<p class="hero-desc">
-					Brightstarからのお知らせを掲載しています。<br>
-					社内の最新情報をご確認ください。
-				</p>
-			</div>
-		</section>
+    <section class="content-box page-width">
+      <div class="content-head">
+        <p class="jp-title">過去のお知らせ</p>
+        <h2 class="en-title">Archive</h2>
+      </div>
+      <div class="notice-list" id="noticeList"></div>
+    </section>
+  </main>
 
-		<!-- 最新のお知らせ區塊 (動態渲染) -->
-		<div class="latest-wrap">
-			<section class="section">
-				<div class="section-head">
-					<div class="section-title-wrap">
-						<div class="section-jp">最新のお知らせ</div>
-						<h2 class="section-title">Latest</h2>
-					</div>
+  <footer class="bottom d-flex align-items-center justify-content-between">
+    <div class="bottom-logo">Brightstar</div>
+    <div>© Brightstar</div>
+  </footer>
 
-					<!-- HR / GA 專用新增按鈕：導向 /brightStaroshirase/create -->
-					<div class="admin-only admin-tools" style="display: none;">
-						<a href="/brightStaroshirase/form" class="admin-btn primary">＋ 新規作成</a>
-					</div>
-				</div>
+  <script>
+    const sampleNotices = [
+      {
+        id: 1,
+        category: "総務",
+        publishDate: "2026-09-16",
+        mainTitle: "社内ポータルを公開しました",
+        subTitle: "新しいお知らせ画面をご利用いただけます",
+        content: "社内ポータルのお知らせ機能を公開しました。最新情報はこちらからご確認ください。"
+      },
+      {
+        id: 2,
+        category: "社内連絡",
+        publishDate: "2026-09-10",
+        mainTitle: "社内イベント開催のお知らせ",
+        content: "社内イベントの開催についてお知らせします。"
+      },
+      {
+        id: 3,
+        category: "総務",
+        publishDate: "2026-09-01",
+        mainTitle: "防災訓練実施のお知らせ",
+        content: "防災訓練の日程をご確認ください。"
+      }
+    ];
 
-				<div id="latestNoticeContainer">
-					<!-- JS 動態載入最新公告 -->
-				</div>
-			</section>
-		</div>
+    $(function () {
+      setRole();
+      loadNotices();
+    });
 
-		<!-- 過去のお知らせ區塊 (動態渲染) -->
-		<section class="section">
-			<div class="section-head">
-				<div class="section-title-wrap">
-					<div class="section-jp">過去のお知らせ</div>
-					<h2 class="section-title">Archive</h2>
-				</div>
-			</div>
+    function setRole() {
+      const role = (localStorage.getItem("userRole") || "").toUpperCase();
+      const isAdmin = role === "GA";
+      $(".admin-only").toggle(isAdmin);
+      $("#roleBadge").text(isAdmin ? "総務" : "一般");
+    }
 
-			<div class="notice-grid" id="archiveNoticeGrid">
-				<!-- JS 動態載入歷史公告 -->
-			</div>
-		</section>
-	</main>
+    function loadNotices() {
+      if (window.location.protocol === "file:") {
+        showNotices(sampleNotices);
+        return;
+      }
 
-	<footer class="footer">
-		<div class="footer-brand">Brightstar</div>
-		<div>©Brightstar</div>
-	</footer>
+      $.ajax({
+        url: "/api/notices",
+        type: "GET",
+        success: showNotices,
+        error: function (error) {
+          console.error("お知らせの取得に失敗しました。", error);
+          $("#latestNotice").html('<p class="text-secondary">お知らせを取得できませんでした。</p>');
+        }
+      });
+    }
 
-	<script>
-		$(document).ready(function () {
-			// 1. 權限判斷
-			const userRole = (localStorage.getItem("userRole") || "").toUpperCase();
-			const isAdminGroup = (userRole === "HR" || userRole === "GA");
+    function showNotices(data) {
+      if (!data || data.length === 0) {
+        $("#latestNotice").html('<p class="text-secondary">現在、お知らせはありません。</p>');
+        $("#noticeList").empty();
+        return;
+      }
 
-			document.querySelectorAll(".admin-only").forEach(item => {
-				item.style.display = isAdminGroup ? "" : "none";
-			});
+      const role = (localStorage.getItem("userRole") || "").toUpperCase();
+      const isAdmin = role === "GA";
+      const today = new Date().toISOString().split("T")[0];
+      const imagePath = window.location.protocol === "file:" ? "images/" : "/images/";
+      const detailPath = window.location.protocol === "file:" ? "brightStaroshiraseDetail.html?id=" : "/brightStaroshirase/detail?id=";
+      const editPath = window.location.protocol === "file:" ? "brightStaroshiraseEdit.html?id=" : "/brightStaroshirase/edit?id=";
+      const latest = data[0];
+      const oldNotices = data.slice(1);
 
-			const roleBadge = document.getElementById("roleBadge");
-			if (roleBadge) {
-				if (userRole === "HR") roleBadge.textContent = "人事";
-				else if (userRole === "GA") roleBadge.textContent = "総務";
-				else roleBadge.textContent = "一般";
-			}
+      const latestStatus = latest.publishDate && latest.publishDate > today
+        ? '<span class="status">予約中</span>'
+        : "";
 
-			// 2. 載入資料庫公告
-			loadNotices();
-		});
+      const latestButtons = isAdmin
+        ? `<div class="d-flex gap-2 mt-4" onclick="event.stopPropagation();">
+             <button class="mini-btn edit-btn" onclick="location.href='${editPath}${latest.id}'">編集</button>
+             <button class="mini-btn delete-btn" onclick="deleteNotice(${latest.id})">削除</button>
+           </div>`
+        : "";
 
-		function loadNotices() {
-			$.ajax({
-				url: '/api/notices',
-				type: 'GET',
-				success: function (data) {
-					const userRole = (localStorage.getItem("userRole") || "").toUpperCase();
-					const isAdminGroup = (userRole === "HR" || userRole === "GA");
+      $("#latestNotice").html(`
+        <article class="latest-card card" onclick="location.href='${detailPath}${latest.id}'" role="link" tabindex="0">
+          <div class="row g-0 align-items-stretch">
+            <div class="col-lg-7 latest-photo">
+              <img src="${imagePath}main.jpg" alt="${latest.mainTitle || "最新のお知らせ"}">
+            </div>
+            <div class="col-lg-5 latest-info d-flex flex-column justify-content-center">
+              <div><span class="tag">${latest.category || "News"}</span></div>
+              <div class="date">${latest.publishDate || ""}${latestStatus}</div>
+              <h3 class="notice-name">${latest.mainTitle || ""}</h3>
+              ${latest.subTitle ? `<p class="notice-text">${latest.subTitle}</p>` : ""}
+              <p class="notice-text">${latest.content || ""}</p>
+              <div class="more">Read More →</div>
+              ${latestButtons}
+            </div>
+          </div>
+        </article>
+      `);
 
-					if (!data || data.length === 0) {
-						$('#latestNoticeContainer').html('<p style="color:#666;">目前沒有公告資訊。</p>');
-						$('#archiveNoticeGrid').html('');
-						return;
-					}
+      let html = "";
+      oldNotices.forEach(function (item, index) {
+        const status = item.publishDate && item.publishDate > today
+          ? '<span class="status">予約中</span>'
+          : "";
+        const cardImage = index % 2 === 0 ? "notice01.png" : "notice02.png";
+        const buttons = isAdmin
+          ? `<div class="card-buttons d-flex gap-2" onclick="event.stopPropagation();">
+               <button class="mini-btn edit-btn" onclick="location.href='${editPath}${item.id}'">編集</button>
+               <button class="mini-btn delete-btn" onclick="deleteNotice(${item.id})">削除</button>
+             </div>`
+          : "";
 
-					// 取得今天的日期字串 (YYYY-MM-DD)，用來比對是不是未來公告
-					const todayStr = new Date().toISOString().split('T')[0];
+        html += `
+          <article class="notice-card card" onclick="location.href='${detailPath}${item.id}'" role="link" tabindex="0">
+            <div class="notice-photo">
+              <img src="${imagePath}${cardImage}" alt="${item.mainTitle || "お知らせ"}">
+            </div>
+            <div class="notice-info">
+              <div class="notice-top">
+                <span>${item.category || "News"}</span>
+                <span>${item.publishDate || ""}${status}</span>
+              </div>
+              <h3 class="notice-card-title">${item.mainTitle || ""}</h3>
+            </div>
+            ${buttons}
+          </article>
+        `;
+      });
+      $("#noticeList").html(html);
+    }
 
-					// 假設陣列第一筆是最新，其餘為歷史
-					const latestItem = data[0];
-					const archiveItems = data.slice(1);
+    function deleteNotice(id) {
+      if (!confirm("このお知らせを削除しますか？")) return;
 
-					// 判斷是否為未來尚未發布的公告
-					const isLatestFuture = latestItem.publishDate && latestItem.publishDate > todayStr;
-					const statusBadgeHtml = isLatestFuture
-						? `<span class="status-badge">【予約中・未發布】</span>`
-						: '';
+      if (window.location.protocol === "file:") {
+        alert("サンプル画面のため削除処理は行いません。");
+        return;
+      }
 
-					// 渲染 Latest 按鈕與卡片
-					const editBtnHtml = isAdminGroup
-						? `<button class="mini-btn edit" onclick="editNotice(${latestItem.id})">編集</button>`
-						: '';
-					const deleteBtnHtml = isAdminGroup
-						? `<button class="mini-btn delete" onclick="deleteNotice(${latestItem.id})">削除</button>`
-						: '';
-
-						const latestHtml = `
-						  <article class="latest-card" onclick="location.href='/brightStaroshirase/detail?id=${latestItem.id}'" style="cursor: pointer;">
-						    <div class="latest-image">LATEST IMAGE</div>
-						    <div class="latest-body">
-						      <span class="notice-label">${latestItem.category || 'News'}</span>
-						      <div class="notice-date">
-						        ${latestItem.publishDate || ''} ${statusBadgeHtml}
-						      </div>
-						      <h3 class="latest-title">${latestItem.mainTitle}</h3>
-						      ${latestItem.subTitle ? `<p style="color:#666; font-size:13px; margin:0 0 12px;">${latestItem.subTitle}</p>` : ''}
-						      <p class="latest-text">${latestItem.content}</p>
-						      <a href="/brightStaroshirase/detail?id=${latestItem.id}" class="read-more">Read More <span></span> →</a>
-						      ${isAdminGroup ? `<div style="margin-top:24px; display:flex; gap:8px;" onclick="event.stopPropagation();">${editBtnHtml} ${deleteBtnHtml}</div>` : ''}
-						    </div>
-						  </article>
-						`;
-					$('#latestNoticeContainer').html(latestHtml);
-
-					// 渲染 Archive 按鈕與卡片
-					let archiveHtml = '';
-					archiveItems.forEach(function (item) {
-						const isArchiveFuture = item.publishDate && item.publishDate > todayStr;
-						const archiveBadgeHtml = isArchiveFuture
-							? `<span class="status-badge archive">【予約中】</span>`
-							: '';
-						const archiveEditBtn = isAdminGroup
-							? `<button class="mini-btn edit" onclick="editNotice(${item.id})">編集</button>`
-							: '';
-						const archiveDelBtn = isAdminGroup
-							? `<button class="mini-btn delete" onclick="deleteNotice(${item.id})">削除</button>`
-							: '';
-
-							archiveHtml += `
-							    <article class="notice-card" onclick="location.href='/brightStaroshirase/detail?id=${item.id}'" style="cursor: pointer;">
-							      <div class="notice-icon">
-							        <div class="icon-circle">📢</div>
-							      </div>
-							      <div class="notice-body">
-							        <div class="notice-meta">
-							          <span>${item.category || 'News'}</span>
-							          <span>${item.publishDate || ''} ${archiveBadgeHtml}</span>
-							        </div>
-							        <h3 class="notice-title">${item.mainTitle}</h3>
-							      </div>
-							      ${isAdminGroup ? `
-							        <div class="card-admin" style="display:flex; gap:8px;" onclick="event.stopPropagation();">
-							          ${archiveEditBtn} ${archiveDelBtn}
-							        </div>
-							      ` : ''}
-							    </article>
-							`;
-					});
-					$('#archiveNoticeGrid').html(archiveHtml);
-				},
-				error: function (err) {
-					console.error("載入公告失敗:", err);
-				}
-			});
-		}
-
-		// 點擊編輯：導向獨立的編輯頁面並帶入 id
-		function editNotice(id) {
-			window.location.href = '/brightStaroshirase/edit?id=' + id;
-		}
-
-		// 刪除公告函式
-		function deleteNotice(id) {
-			if (!confirm('本当にこのお知らせを削除しますか？')) return;
-
-			$.ajax({
-				url: '/api/notices/' + id,
-				type: 'DELETE',
-				success: function () {
-					alert('削除しました。');
-					loadNotices();
-				},
-				error: function () {
-					alert('削除に失敗しました。');
-				}
-			});
-		}
-	</script>
+      $.ajax({
+        url: "/api/notices/" + id,
+        type: "DELETE",
+        success: function () {
+          alert("削除しました。");
+          loadNotices();
+        },
+        error: function () {
+          alert("削除に失敗しました。");
+        }
+      });
+    }
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
 </body>
-
 </html>

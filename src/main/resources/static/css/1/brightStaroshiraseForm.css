@@ -1,0 +1,113 @@
+/* brightStaroshiraseForm.css - 獨立表單頁面樣式 */
+:root {
+    --orange: #ff7f50;
+    --orange-hover: #ff6348;
+    --bg-color: #f8f9fa;
+    --text-color: #333;
+    --border-color: #ddd;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    margin: 0;
+    padding: 20px;
+}
+
+.portal-container {
+    max-width: 800px;
+    margin: 0 auto;
+    background: #fff;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.portal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid var(--orange);
+    padding-bottom: 15px;
+    margin-bottom: 30px;
+}
+
+.portal-header h1 {
+    margin: 0;
+    font-size: 24px;
+    color: var(--orange);
+}
+
+/* 表單區塊樣式 */
+.form-container {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 8px;
+}
+
+.required {
+    color: #e74c3c;
+}
+
+.form-group input[type="text"],
+.form-group input[type="date"],
+.form-group textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    font-size: 14px;
+    box-sizing: border-box;
+    transition: border-color 0.2s;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+    border-color: var(--orange);
+    outline: none;
+}
+
+.form-actions {
+    display: flex;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+/* 按鈕樣式 */
+.btn-confirm, .btn-cancel, .btn-back {
+    padding: 10px 20px;
+    border-radius: 4px;
+    text-decoration: none;
+    font-size: 14px;
+    cursor: pointer;
+    border: none;
+    text-align: center;
+}
+
+.btn-confirm {
+    background-color: var(--orange);
+    color: white;
+}
+
+.btn-confirm:hover {
+    background-color: var(--orange-hover);
+}
+
+.btn-cancel, .btn-back {
+    background-color: #6c757d;
+    color: white;
+}
+
+.btn-cancel:hover, .btn-back:hover {
+    background-color: #5a6268;
+}

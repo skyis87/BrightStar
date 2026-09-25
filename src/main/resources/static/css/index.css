@@ -1,91 +1,67 @@
 @charset "UTF-8";
 
-/* 移除全域 div 寬高限制，改用專屬類別控制 */
-.input-group {
-    margin-bottom: 15px;
-    text-align: left;
+.login-page {
+  min-height: 100vh;
+  background: #f6f4ef;
 }
 
-.input-group label {
-    display: block;
-    margin-bottom: 5px;
-    color: #333;
-    font-weight: bold;
+.login-photo {
+  min-height: 100vh;
+  background: url("images/main.jpg") center / cover no-repeat;
 }
 
-/* 輸入框樣式 */
-.AP {
-    width: 100%;
-    padding: 8px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    box-sizing: border-box;
+.login-area {
+  max-width: 430px;
+  width: 100%;
+  padding: 42px;
+  background: #fff;
+  border-top: 5px solid var(--main);
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.08);
 }
 
-.AP:focus {
-    border-color: #2b7b7b;
-    outline: none;
+.login-title {
+  margin: 0 0 8px;
+  font-size: 38px;
+  font-weight: 800;
 }
 
-/* 登入按鈕 */
-#confirmBtn {
-    width: 100%;
-    padding: 10px;
-    background-color: #2b7b7b;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    font-size: 16px;
-    cursor: pointer;
+.login-text {
+  margin-bottom: 30px;
+  color: var(--gray);
+  font-size: 14px;
 }
 
-#confirmBtn:hover {
-    background-color: #205c5c;
+.input-box label {
+  margin-bottom: 7px;
+  font-size: 13px;
+  font-weight: 700;
 }
 
-/* 背景半透明遮罩 */
-.modal {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    z-index: 1000;
+.input-box .form-control {
+  min-height: 48px;
+  border-color: var(--line);
+  border-radius: 4px;
 }
 
-/* 登入框主體 */
-.modal-content {
-    background-color: white;
-    width: 320px;
-    padding: 25px;
-    border-radius: 8px;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
-    text-align: center;
+.input-box .form-control:focus {
+  border-color: var(--main);
+  box-shadow: 0 0 0 0.2rem rgba(243, 154, 34, 0.15);
 }
 
-/* 關閉按鈕 */
-.close {
-    float: right;
-    font-size: 22px;
-    font-weight: bold;
-    cursor: pointer;
-    color: #aaa;
-}
-
-.close:hover {
-    color: #000;
-}
-
-/* 訊息提示 */
 .msg-box {
-    color: #d9534f;
-    font-size: 14px;
-    min-height: 20px;
-    margin-bottom: 10px;
+  min-height: 22px;
+  color: #c94a3c;
+  font-size: 13px;
+}
+
+@media (max-width: 767px) {
+  .login-photo {
+    min-height: 260px;
+  }
+
+  .login-area {
+    max-width: none;
+    padding: 30px 24px;
+    box-shadow: none;
+  }
 }

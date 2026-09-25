@@ -90,10 +90,10 @@ $(document).ready(function () {
         $('#loginModal').fadeIn();
         $('#msg').text('');
     });
-
-    $('#closeBtn').on('click', function () {
-        $('#loginModal'].fadeOut();
-    });
+	// 閉じるボタン（#closeBtn）をクリックした際、ログインモーダルをフェードアウトして非表示にする
+	    $('#closeBtn').on('click', function () {
+	        $('#loginModal').fadeOut();
+	    });
 
     // 點擊 Modal 外部陰影處關閉視窗
     $(window).on('click', function (event) {
