@@ -126,12 +126,25 @@
 	  });
 	});
 
-    function setRole() {
-      const role = (localStorage.getItem("userRole") || "").toUpperCase();
-      const isAdmin = role === "GA";
-      $(".admin-only").toggle(isAdmin);
-      $("#roleBadge").text(isAdmin ? "総務" : "一般");
-    }
+	function setRole() {
+	  const role = (localStorage.getItem("userRole") || "").toUpperCase();
+	  
+	  // 1. 判斷是否為管理員
+	  const isAdmin = role === "GA" || role === "HR";
+	  $(".admin-only").toggle(isAdmin);
+
+	  // 2. 根據角色顯示對應的 Badge 標籤文字
+	  let roleText = "一般";
+	  if (role === "GA") {
+	    roleText = "総務";
+	  } else if (role === "HR") {
+	    roleText = "人事";
+	  } else if (role === "IT") {
+	    roleText = "IT";
+	  }
+
+	  $("#roleBadge").text(roleText);
+	}
 
     function loadNotices() {
       if (window.location.protocol === "file:") {
@@ -159,7 +172,7 @@
       }
 
       const role = (localStorage.getItem("userRole") || "").toUpperCase();
-      const isAdmin = role === "GA";
+      const isAdmin = role === "GA"||role === "HR";
       const today = new Date().toISOString().split("T")[0];
       const imagePath = window.location.protocol === "file:" ? "images/" : "/images/";
       const detailPath = window.location.protocol === "file:" ? "brightStaroshiraseDetail.html?id=" : "/brightStaroshirase/detail?id=";
@@ -230,7 +243,7 @@
       }
 
       const role = (localStorage.getItem("userRole") || "").toUpperCase();
-      const isAdmin = role === "GA";
+      const isAdmin = role === "GA"||role === "HR";
       const today = new Date().toISOString().split("T")[0];
       const imagePath = window.location.protocol === "file:" ? "images/" : "/images/";
       const detailPath = window.location.protocol === "file:" ? "brightStaroshiraseDetail.html?id=" : "/brightStaroshirase/detail?id=";

@@ -15,7 +15,10 @@
     <a th:href="@{/portalHome}" href="portalHome.html" class="logo">Brightstar</a>
     <div class="user-box d-flex align-items-center gap-3">
       <span class="user-name" th:text="${session.loginUser != null ? session.loginUser.username : 'ゲスト'}">山田 太郎</span>
-      <span class="role" id="roleBadge" th:text="${session.loginUser != null && session.loginUser.role == 'GA' ? '総務' : '一般'}">一般</span>
+      
+      <!-- 🔹 1. Thymeleaf バックエンドレンダリング：HR / IT などの判定を追加 -->
+      <span class="role" id="roleBadge" th:text="${session.loginUser != null ? (session.loginUser.role == 'GA' ? '総務' : (session.loginUser.role == 'HR' ? '人事' : (session.loginUser.role == 'IT' ? 'IT' : '一般'))) : '一般'}">一般</span>
+      
       <a th:href="@{/logout}" href="index.html" class="logout" onclick="localStorage.clear(); sessionStorage.clear();">ログアウト</a>
     </div>
   </header>
@@ -25,12 +28,12 @@
       <div class="detail-top d-flex flex-wrap align-items-center justify-content-between gap-3">
         <a th:href="@{/brightStaroshirase}" href="brightStaroshirase.html" class="back-btn">← 一覧へ戻る</a>
         
-        <!-- 右側按鈕群組：只保留下載按鈕 -->
+        <!-- 右側ボタングループ：ダウンロードボタン -->
         <div class="d-flex gap-2">
-          <!-- 附件下載按鈕 -->
+          <!-- 添付ファイルダウンロードボタン -->
           <a id="downloadFileBtn" href="#" class="btn main-btn" style="display: none;">添付ファイルをダウンロード</a>
           
-          <!-- 文字檔下載按鈕 -->
+          <!-- テキストファイルダウンロードボタン -->
           <button id="downloadBtn" class="btn sub-btn" style="display: none;">テキストを保存</button>
         </div>
       </div>
@@ -46,10 +49,10 @@
         <div class="detail-sub" id="detailSubTitle" style="display: none;"></div>
         <div class="detail-line"></div>
         
-        <!-- 公告內文區塊 -->
+        <!-- お知らせ本文エリア -->
         <div class="detail-text" id="detailMainContent"></div>
 
-        <!-- 🔽 移動到這裡：內文下方顯示「編輯」與「刪除」按鈕 -->
+        <!-- 本文下の「編集」「削除」ボタン表示エリア -->
         <div class="d-flex justify-content-end gap-2 mt-4 pt-3 border-top" id="adminBtnArea" style="display: none !important;">
           <button id="editNoticeBtn" class="btn btn-warning">編集</button>
           <button id="deleteNoticeBtn" class="btn btn-danger">削除</button>
@@ -110,7 +113,7 @@
       $("#detailMainContent").text(item.content || "");
       if (item.subTitle) $("#detailSubTitle").text(item.subTitle).show();
 
-      // 檢查這篇公告是否有上傳附件檔案
+      // 添付ファイルの有無を確認
       if (item.filePath && item.fileName) {
         $("#downloadFileBtn")
           .attr("href", item.filePath)
@@ -118,7 +121,7 @@
           .show();
       }
 
-      // 判斷權限並顯示內文下方的管理員按鈕
+      // 権限判定とロールバッジの設定
       checkAdminRole();
 
       $("#detailLoading").hide();
@@ -126,13 +129,25 @@
       $("#downloadBtn").show();
     }
 
-    // 判斷是否顯示「編輯」與「刪除」按鈕區塊
+    // 🔹 2. ロールバッジのテキスト更新 & 管理者用（編集・削除）ボタンの表示制御
     function checkAdminRole() {
       const role = (localStorage.getItem("userRole") || "").toUpperCase();
-      const roleText = $("#roleBadge").text().trim();
       
-      if (role === "GA" || roleText === "総務") {
-        $("#adminBtnArea").attr("style", "display: flex !important;"); // 顯示按鈕區塊
+      // バッジ表示テキストの反映
+      let roleText = "一般";
+      if (role === "GA") {
+        roleText = "総務";
+      } else if (role === "HR") {
+        roleText = "人事";
+      } else if (role === "IT") {
+        roleText = "IT";
+      }
+      $("#roleBadge").text(roleText);
+
+     
+      const isAdmin = (role === "GA" || role === "HR");
+      if (isAdmin) {
+        $("#adminBtnArea").attr("style", "display: flex !important;"); // 編集・削除ボタンを表示
       }
     }
 
@@ -141,7 +156,7 @@
       window.location.href = "/brightStaroshirase";
     }
 
-    // 點擊「編輯」跳轉
+    // 「編集」ボタンの画面遷移
     $("#editNoticeBtn").on("click", function () {
       if (!currentNotice) return;
       const editPath = window.location.protocol === "file:" 
@@ -150,7 +165,7 @@
       window.location.href = editPath + currentNotice.id;
     });
 
-    // 點擊「刪除」
+    // 「削除」ボタンの処理
     $("#deleteNoticeBtn").on("click", function () {
       if (!currentNotice) return;
       
@@ -174,7 +189,7 @@
       });
     });
 
-    // 附件下載處理
+    // 添付ファイルダウンロード処理
     $("#downloadFileBtn").on("click", function (e) {
       e.preventDefault();
       const fileUrl = $(this).attr("href");
@@ -184,7 +199,7 @@
 
       fetch(fileUrl)
         .then(response => {
-          if (!response.ok) throw new Error("檔案下載失敗");
+          if (!response.ok) throw new Error("ダウンロードに失敗しました");
           return response.blob();
         })
         .then(blob => {
@@ -199,11 +214,11 @@
         })
         .catch(err => {
           console.error(err);
-          alert("無法順利下載檔案");
+          alert("ファイルをダウンロードできませんでした。");
         });
     });
 
-    // 文字檔下載處理
+    // テキスト保存処理
     $("#downloadBtn").on("click", function () {
       if (!currentNotice) return;
       const text =

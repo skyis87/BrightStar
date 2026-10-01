@@ -13,8 +13,11 @@
     <a th:href="@{/portalHome}" href="portalHome.html" class="logo">Brightstar</a>
     <div class="user-box d-flex align-items-center gap-3">
       <span class="user-name" th:text="${session.loginUser != null ? session.loginUser.username : 'ゲスト'}">山田 太郎</span>
-      <span class="role" id="roleBadge" th:text="${session.loginUser != null && session.loginUser.role == 'GA' ? '総務' : '一般'}">一般</span>
-     <a th:href="@{/logout}" href="index.html" class="logout" onclick="localStorage.clear(); sessionStorage.clear();">ログアウト</a>
+      
+      <!-- 🔹 1. Thymeleaf 後端渲染：加入 HR / IT 的判定 -->
+      <span class="role" id="roleBadge" th:text="${session.loginUser != null ? (session.loginUser.role == 'GA' ? '総務' : (session.loginUser.role == 'HR' ? '人事' : (session.loginUser.role == 'IT' ? 'IT' : '一般'))) : '一般'}">一般</span>
+      
+      <a th:href="@{/logout}" href="index.html" class="logout" onclick="localStorage.clear(); sessionStorage.clear();">ログアウト</a>
     </div>
   </header>
 
@@ -79,11 +82,23 @@
     <div>© Brightstar</div>
   </footer>
 
+  <!-- 🔹 2. JS 邏輯修正：改用對應表判定角色標籤 -->
   <script>
     document.addEventListener("DOMContentLoaded", function () {
       const role = (localStorage.getItem("userRole") || "").toUpperCase();
       const roleBadge = document.getElementById("roleBadge");
-      if (roleBadge) roleBadge.textContent = role === "GA" ? "総務" : "一般";
+      
+      if (roleBadge) {
+        let roleText = "一般";
+        if (role === "GA") {
+          roleText = "総務";
+        } else if (role === "HR") {
+          roleText = "人事";
+        } else if (role === "IT") {
+          roleText = "IT";
+        }
+        roleBadge.textContent = roleText;
+      }
     });
   </script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
