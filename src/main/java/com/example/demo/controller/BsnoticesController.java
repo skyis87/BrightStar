@@ -139,6 +139,7 @@ public class BsnoticesController {
     // 4. 導向「公告詳細內容」頁面
     @GetMapping("/brightStaroshirase/detail")
     public String toOshiraseDetail(HttpSession session) {
+    	//未登入：強制重定向（轉址）回首頁/登入頁
         if (session.getAttribute("loginUser") == null) {
             return "redirect:/";
         }

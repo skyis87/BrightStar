@@ -119,18 +119,20 @@ img {
 }
 
 .main-photo {
-  min-height: 350px;
+  max-height: 260px; /* 控制最大高度，可依需求改成 220px、250px 等 */
+  min-height: auto;  /* 覆蓋掉原本的 min-height: 350px */
   overflow: hidden;
   background: var(--light);
+  border-radius: 8px; /* 可選：加一點微圓角讓視覺更精緻 */
 }
 
 .main-photo img {
   width: 100%;
   height: 100%;
-  min-height: 350px;
-  object-fit: cover;
+  max-height: 260px; /* 與容器高度一致 */
+  min-height: auto;
+  object-fit: cover;  /* 保持圖片比例並自動裁切填滿 */
 }
-
 .small-title {
   margin-bottom: 10px;
   color: var(--main);

@@ -5,9 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Brightstar｜お知らせ</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
-  <link rel="stylesheet" th:href="@{/css/common.css}" href="common.css">
-  <link rel="stylesheet" th:href="@{/css/brightStaroshirase.css}" href="brightStaroshirase.css">
+  <link rel="stylesheet" th:href="@{/css/common.css}" href="../static/css/common.css">
+  <link rel="stylesheet" th:href="@{/css/brightStaroshirase.css}" href="../static/css/brightStaroshirase.css">
   <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+  <script th:src="@{/js/common.js}" src="../static/js/common.js"></script>
 </head>
 <body>
   <header class="top d-flex align-items-center justify-content-between">
@@ -15,7 +17,7 @@
     <div class="user-box d-flex align-items-center gap-3">
       <span class="user-name" th:text="${session.loginUser != null ? session.loginUser.username : 'ゲスト'}">山田 太郎</span>
       <span class="role" id="roleBadge">一般</span>
-      <a th:href="@{/logout}" href="index.html" class="logout">ログアウト</a>
+      <a th:href="@{/logout}" href="index.html" class="logout" onclick="localStorage.clear(); sessionStorage.clear();">ログアウト</a>
     </div>
   </header>
 
@@ -24,7 +26,7 @@
       <div class="row align-items-center g-4 g-lg-5">
         <div class="col-lg-7">
           <div class="main-photo">
-            <img th:src="@{/images/main.jpg}" src="images/main.jpg" alt="Brightstar お知らせメイン画像">
+            <img th:src="@{/images/main.jpg}" src="../static/images/main.jpg" alt="Brightstar お知らせメイン画像">
           </div>
         </div>
         <div class="col-lg-5">
@@ -51,12 +53,28 @@
       </section>
     </div>
 
-    <section class="content-box page-width">
-      <div class="content-head">
-        <p class="jp-title">過去のお知らせ</p>
-        <h2 class="en-title">Archive</h2>
+    <!-- 過去のお知らせセクション -->
+    <section class="content-box page-width" id="archiveSection">
+      <div class="content-head d-flex align-items-end justify-content-between flex-wrap gap-3">
+        <div>
+          <p class="jp-title">過去のお知らせ</p>
+          <h2 class="en-title">Archive</h2>
+        </div>
+        <!-- 搜尋框區塊 -->
+		<div class="search-box">
+		  <div class="input-group">
+		    <input type="text" id="searchInput" class="form-control" placeholder="検索キーワードを入力..." aria-label="Search">
+		    <button class="btn main-btn" type="button" id="searchBtn">検索</button>
+		    <button class="btn sub-btn" type="button" id="clearSearchBtn">クリア</button>
+		  </div>
+		</div>
       </div>
       <div class="notice-list" id="noticeList"></div>
+
+      <!-- ページネーション表示エリア -->
+      <nav class="d-flex justify-content-center mt-5" aria-label="Page navigation">
+        <ul class="pagination" id="pagination"></ul>
+      </nav>
     </section>
   </main>
 
@@ -67,34 +85,46 @@
 
   <script>
     const sampleNotices = [
-      {
-        id: 1,
-        category: "総務",
-        publishDate: "2026-09-16",
-        mainTitle: "社内ポータルを公開しました",
-        subTitle: "新しいお知らせ画面をご利用いただけます",
-        content: "社内ポータルのお知らせ機能を公開しました。最新情報はこちらからご確認ください。"
-      },
-      {
-        id: 2,
-        category: "社内連絡",
-        publishDate: "2026-09-10",
-        mainTitle: "社内イベント開催のお知らせ",
-        content: "社内イベントの開催についてお知らせします。"
-      },
-      {
-        id: 3,
-        category: "総務",
-        publishDate: "2026-09-01",
-        mainTitle: "防災訓練実施のお知らせ",
-        content: "防災訓練の日程をご確認ください。"
-      }
+      { id: 1, category: "総務", publishDate: "2026-09-16", mainTitle: "社内ポータルを公開しました", subTitle: "新しいお知らせ画面をご利用いただけます", content: "社内ポータルのお知らせ機能を公開しました。" },
+      { id: 2, category: "社内連絡", publishDate: "2026-09-10", mainTitle: "社内イベント開催のお知らせ", content: "社内イベントの開催についてお知らせします。" },
+      { id: 3, category: "総務", publishDate: "2026-09-01", mainTitle: "防災訓練実施のお知らせ", content: "防災訓練の日程をご確認ください。" },
+      { id: 4, category: "IT", publishDate: "2026-08-25", mainTitle: "システムメンテナンスのお知らせ", content: "深夜帯にメンテナンスを実施します。" },
+      { id: 5, category: "人事", publishDate: "2026-08-20", mainTitle: "夏季休暇のお知らせ", content: "夏季休暇の取得期間について案内いたします。" },
+      { id: 6, category: "総務", publishDate: "2026-08-15", mainTitle: "健康診断のお知らせ", content: "受診方法と日程の確認をお願いします。" },
+      { id: 7, category: "社内連絡", publishDate: "2026-08-01", mainTitle: "クールビズ実施のお知らせ", content: "夏季の軽装化にご協力ください。" },
+      { id: 8, category: "IT", publishDate: "2026-07-20", mainTitle: "パスワード変更のお願い", content: "定期的なパスワード変更を実施してください。" }
     ];
 
-    $(function () {
-      setRole();
-      loadNotices();
-    });
+    let rawArchiveNotices = [];      // 原始過往資料
+    let filteredArchiveNotices = []; // 搜尋過濾後的資料
+    let currentPage = 1;
+    const itemsPerPage = 6;
+
+	$(function () {
+	  setRole();
+	  loadNotices();
+
+	  // 1. 點擊「検索」按鈕時執行搜尋
+	  $("#searchBtn").on("click", function () {
+	    const keyword = $("#searchInput").val().trim();
+	    filterNotices(keyword);
+	  });
+
+	  // 2. 在搜尋框按 Enter 鍵時執行搜尋
+	  $("#searchInput").on("keypress", function (e) {
+	    if (e.which === 13) { // 13 代表 Enter 鍵
+	      e.preventDefault(); // 防止表單預設送出行為
+	      const keyword = $(this).val().trim();
+	      filterNotices(keyword);
+	    }
+	  });
+
+	  // 3. 點擊「クリア」按鈕時清空輸入框並重置清單
+	  $("#clearSearchBtn").on("click", function () {
+	    $("#searchInput").val("");
+	    filterNotices("");
+	  });
+	});
 
     function setRole() {
       const role = (localStorage.getItem("userRole") || "").toUpperCase();
@@ -124,6 +154,7 @@
       if (!data || data.length === 0) {
         $("#latestNotice").html('<p class="text-secondary">現在、お知らせはありません。</p>');
         $("#noticeList").empty();
+        $("#pagination").empty();
         return;
       }
 
@@ -133,9 +164,11 @@
       const imagePath = window.location.protocol === "file:" ? "images/" : "/images/";
       const detailPath = window.location.protocol === "file:" ? "brightStaroshiraseDetail.html?id=" : "/brightStaroshirase/detail?id=";
       const editPath = window.location.protocol === "file:" ? "brightStaroshiraseEdit.html?id=" : "/brightStaroshirase/edit?id=";
+      
       const latest = data[0];
-      const oldNotices = data.slice(1);
+      rawArchiveNotices = data.slice(1);
 
+      // --- 1. 最新のお知らせ表示 ---
       const latestStatus = latest.publishDate && latest.publishDate > today
         ? '<span class="status">予約中</span>'
         : "";
@@ -150,10 +183,10 @@
       $("#latestNotice").html(`
         <article class="latest-card card" onclick="location.href='${detailPath}${latest.id}'" role="link" tabindex="0">
           <div class="row g-0 align-items-stretch">
-            <div class="col-lg-7 latest-photo">
+            <div class="col-lg-5 latest-photo">
               <img src="${imagePath}main.jpg" alt="${latest.mainTitle || "最新のお知らせ"}">
             </div>
-            <div class="col-lg-5 latest-info d-flex flex-column justify-content-center">
+            <div class="col-lg-7 latest-info d-flex flex-column justify-content-center">
               <div><span class="tag">${latest.category || "News"}</span></div>
               <div class="date">${latest.publishDate || ""}${latestStatus}</div>
               <h3 class="notice-name">${latest.mainTitle || ""}</h3>
@@ -166,8 +199,49 @@
         </article>
       `);
 
+      // 初始渲染 Archive
+      filterNotices("");
+    }
+
+    // 關鍵字過濾邏輯
+    function filterNotices(keyword) {
+      if (!keyword) {
+        filteredArchiveNotices = [...rawArchiveNotices];
+      } else {
+        const lowerKey = keyword.toLowerCase();
+        filteredArchiveNotices = rawArchiveNotices.filter(item => {
+          const title = (item.mainTitle || "").toLowerCase();
+          const content = (item.content || "").toLowerCase();
+          const category = (item.category || "").toLowerCase();
+          return title.includes(lowerKey) || content.includes(lowerKey) || category.includes(lowerKey);
+        });
+      }
+
+      currentPage = 1;
+      renderArchivePage(currentPage);
+    }
+
+    // 繪製 Archive 頁面
+    function renderArchivePage(page) {
+      if (filteredArchiveNotices.length === 0) {
+        $("#noticeList").html('<p class="text-secondary py-4">該当するお知らせは見つかりませんでした。</p>');
+        $("#pagination").empty();
+        return;
+      }
+
+      const role = (localStorage.getItem("userRole") || "").toUpperCase();
+      const isAdmin = role === "GA";
+      const today = new Date().toISOString().split("T")[0];
+      const imagePath = window.location.protocol === "file:" ? "images/" : "/images/";
+      const detailPath = window.location.protocol === "file:" ? "brightStaroshiraseDetail.html?id=" : "/brightStaroshirase/detail?id=";
+      const editPath = window.location.protocol === "file:" ? "brightStaroshiraseEdit.html?id=" : "/brightStaroshirase/edit?id=";
+
+      const startIndex = (page - 1) * itemsPerPage;
+      const endIndex = startIndex + itemsPerPage;
+      const pageNotices = filteredArchiveNotices.slice(startIndex, endIndex);
+
       let html = "";
-      oldNotices.forEach(function (item, index) {
+      pageNotices.forEach(function (item, index) {
         const status = item.publishDate && item.publishDate > today
           ? '<span class="status">予約中</span>'
           : "";
@@ -196,29 +270,79 @@
         `;
       });
       $("#noticeList").html(html);
+
+      renderPaginationUI(page);
     }
 
-    function deleteNotice(id) {
-      if (!confirm("このお知らせを削除しますか？")) return;
-
-      if (window.location.protocol === "file:") {
-        alert("サンプル画面のため削除処理は行いません。");
+    // 產生分頁按鈕 UI
+    function renderPaginationUI(activePage) {
+      const totalPages = Math.ceil(filteredArchiveNotices.length / itemsPerPage);
+      if (totalPages <= 1) {
+        $("#pagination").empty();
         return;
       }
 
-      $.ajax({
-        url: "/api/notices/" + id,
-        type: "DELETE",
-        success: function () {
-          alert("削除しました。");
-          loadNotices();
-        },
-        error: function () {
-          alert("削除に失敗しました。");
+      let paginationHtml = "";
+
+      const prevDisabled = activePage === 1 ? "disabled" : "";
+      paginationHtml += `
+        <li class="page-item ${prevDisabled}">
+          <a class="page-link" href="#" onclick="changePage(${activePage - 1}); return false;">前へ</a>
+        </li>
+      `;
+
+      for (let i = 1; i <= totalPages; i++) {
+        const activeClass = i === activePage ? "active" : "";
+        paginationHtml += `
+          <li class="page-item ${activeClass}">
+            <a class="page-link" href="#" onclick="changePage(${i}); return false;">${i}</a>
+          </li>
+        `;
+      }
+
+      const nextDisabled = activePage === totalPages ? "disabled" : "";
+      paginationHtml += `
+        <li class="page-item ${nextDisabled}">
+          <a class="page-link" href="#" onclick="changePage(${activePage + 1}); return false;">次へ</a>
+        </li>
+      `;
+
+      $("#pagination").html(paginationHtml);
+    }
+
+    function changePage(page) {
+      const totalPages = Math.ceil(filteredArchiveNotices.length / itemsPerPage);
+      if (page < 1 || page > totalPages) return;
+
+      currentPage = page;
+      renderArchivePage(currentPage);
+
+      $("html, body").animate({
+        scrollTop: $("#archiveSection").offset().top - 30
+      }, 300);
+    }
+
+    function deleteNotice(id) {
+      showCustomConfirm("このお知らせを削除しますか？", function () {
+        if (window.location.protocol === "file:") {
+          showCustomAlert("サンプル画面のため削除処理は行いません。");
+          return;
         }
-      });
+
+        $.ajax({
+          url: "/api/notices/" + id,
+          type: "DELETE",
+          success: function () {
+            showCustomAlert("削除しました。", function () {
+              loadNotices();
+            });
+          },
+          error: function () {
+            showCustomAlert("削除に失敗しました。");
+          }
+        });
+      }, "削除の確認");
     }
   </script>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
 </body>
 </html>

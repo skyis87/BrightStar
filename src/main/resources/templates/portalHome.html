@@ -14,7 +14,7 @@
     <div class="user-box d-flex align-items-center gap-3">
       <span class="user-name" th:text="${session.loginUser != null ? session.loginUser.username : 'ゲスト'}">山田 太郎</span>
       <span class="role" id="roleBadge" th:text="${session.loginUser != null && session.loginUser.role == 'GA' ? '総務' : '一般'}">一般</span>
-      <a th:href="@{/logout}" href="index.html" class="logout">ログアウト</a>
+     <a th:href="@{/logout}" href="index.html" class="logout" onclick="localStorage.clear(); sessionStorage.clear();">ログアウト</a>
     </div>
   </header>
 

@@ -1,5 +1,8 @@
 $(document).ready(function () {
-
+	
+	// 🔹 只要進入登入頁面，立刻清空舊的 LocalStorage & SessionStorage，避免角色殘留
+	    localStorage.clear();
+	    sessionStorage.clear();
     // 🔹 即時密碼長度檢查
     $('#password').on('input', function () {
         const val = $(this).val();

@@ -69,3 +69,52 @@
     padding: 30px 24px;
   }
 }
+
+/* ==========================================
+   檔案上傳元件樣式修正（固定日文與對齊）
+   ========================================== */
+
+/* 顯示檔名的文字框高度與外觀 */
+.input-box .input-group #fileNameDisplay {
+  min-height: 46px;
+  height: 46px;
+  border-color: var(--line, #ced4da);
+  font-size: 0.875rem;
+  background-color: #fff !important;
+}
+
+/* 左右按鈕統一樣式 */
+.input-box .input-group .custom-file-btn {
+  height: 46px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f8f9fa;
+  color: #212529;
+  border: 1px solid var(--line, #ced4da);
+  padding: 0 16px;
+  font-size: 0.875rem;
+  font-weight: 400;
+  cursor: pointer;
+  box-shadow: none;
+  white-space: nowrap;
+}
+
+.input-box .input-group .custom-file-btn:hover {
+  background-color: #e9ecef;
+  color: #212529;
+}
+
+/* 左側「ファイルを選択」按鈕圓角處理 */
+.input-box .input-group label.custom-file-btn {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+  border-right: none;
+}
+
+/* 右側「選択解除」按鈕圓角處理 */
+.input-box .input-group #clearSelectedFile {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+  border-left: none;
+}

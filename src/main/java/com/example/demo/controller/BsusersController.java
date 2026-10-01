@@ -3,6 +3,8 @@ package com.example.demo.controller;
 import java.util.HashMap;
 import java.util.Map;
 
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,10 +57,19 @@ public class BsusersController {
         return "portalHome"; 
     }
 
-    // 登出功能
     @GetMapping(value = "/logout")
-    public String logout(HttpSession session) {
-        session.invalidate();
+    public String logout(HttpSession session, HttpServletResponse response) {
+        if (session != null) {
+            session.removeAttribute("loginUser");
+            session.invalidate();
+        }
+
+        // 強制清除瀏覽器紀錄的 JSESSIONID Cookie
+        Cookie cookie = new Cookie("JSESSIONID", null);
+        cookie.setPath("/");
+        cookie.setMaxAge(0);
+        response.addCookie(cookie);
+
         return "redirect:/";
     }
 }

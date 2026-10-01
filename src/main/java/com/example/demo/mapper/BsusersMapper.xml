@@ -18,24 +18,25 @@
   </sql>
 
   <!-- [動態查詢] 包含 id、username、realName 等條件篩選與未刪除過濾 (is_deleted = 0) -->
-  <select id="selectSelective" parameterType="com.example.demo.entity.Bsusers" resultMap="BaseResultMap">
-    select 
-      <include refid="Base_Column_List" />
-    from bsusers
-    where is_deleted = 0
-    <if test="id != null">
-      and id = #{id}
-    </if>
-    <if test="username != null and username != ''">
-      and username like concat('%', #{username}, '%')
-    </if>
-    <if test="realName != null and realName != ''">
-      and real_name like concat('%', #{realName}, '%')
-    </if>
-    <if test="role != null and role != ''">
-      and role = #{role}
-    </if>
-  </select>
+  <!-- 修正後的 selectSelective -->
+<select id="selectSelective" parameterType="com.example.demo.entity.Bsusers" resultMap="BaseResultMap">
+  select 
+    <include refid="Base_Column_List" />
+  from bsusers
+  where is_deleted = 0
+  <if test="id != null">
+    and id = #{id}
+  </if>
+  <if test="username != null and username != ''">
+    and username = #{username}
+  </if>
+  <if test="realName != null and realName != ''">
+    and real_name = #{realName}
+  </if>
+  <if test="role != null and role != ''">
+    and role = #{role}
+  </if>
+</select>
 
   <!-- [新增資料] 自動將 is_deleted 設為 0，且建立時間設為 NOW() -->
   <insert id="insertSelective" parameterType="com.example.demo.entity.Bsusers">

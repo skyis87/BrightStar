@@ -11,15 +11,19 @@
   border-radius: 4px;
 }
 
+/* 讓左側圖片區塊絕對定位鋪滿，與右側文字高度完全一致對齊 */
 .latest-photo {
-  min-height: 320px;
+  position: relative;
+  min-height: 260px;
   background: #ddd;
 }
 
 .latest-photo img {
+  position: absolute;
+  top: 0;
+  left: 0;
   width: 100%;
   height: 100%;
-  min-height: 320px;
   object-fit: cover;
 }
 
@@ -151,6 +155,23 @@
   font-weight: 700;
 }
 
+/* -----------------------------------
+   搜尋框樣式
+----------------------------------- */
+.search-box {
+  min-width: 280px;
+}
+
+.search-box .form-control {
+  border-color: var(--line);
+  font-size: 14px;
+}
+
+.search-box .form-control:focus {
+  border-color: var(--main);
+  box-shadow: 0 0 0 0.25rem rgba(243, 154, 34, 0.25);
+}
+
 @media (max-width: 900px) {
   .notice-list {
     grid-template-columns: repeat(2, 1fr);
@@ -165,4 +186,48 @@
   .latest-info {
     padding: 24px;
   }
+  
+  .search-box {
+    width: 100%;
+  }
+}
+
+/* -----------------------------------
+   分頁元件（Pagination）品牌主題化
+----------------------------------- */
+.pagination {
+  gap: 6px;
+}
+
+.pagination .page-item .page-link {
+  color: var(--black);
+  background-color: var(--white);
+  border: 1px solid var(--line);
+  border-radius: 4px !important;
+  font-weight: 700;
+  font-size: 14px;
+  padding: 8px 16px;
+  transition: all 0.2s ease;
+}
+
+.pagination .page-item:not(.disabled):not(.active) .page-link:hover {
+  color: var(--main);
+  border-color: var(--main);
+  background-color: var(--main-light);
+}
+
+.pagination .page-item.active .page-link {
+  color: var(--white);
+  background-color: var(--main);
+  border-color: var(--main);
+}
+
+.pagination .page-item.disabled .page-link {
+  color: #ccc;
+  background-color: #f5f5f5;
+  border-color: var(--line);
+}
+
+.pagination .page-link:focus {
+  box-shadow: 0 0 0 0.25rem rgba(243, 154, 34, 0.25);
 }
