@@ -1,9 +1,10 @@
 $(document).ready(function () {
-	
-	// 🔹 只要進入登入頁面，立刻清空舊的 LocalStorage & SessionStorage，避免角色殘留
-	    localStorage.clear();
-	    sessionStorage.clear();
-    // 🔹 即時密碼長度檢查
+    
+    //  只要進入登入頁面，立刻清空舊的 LocalStorage & SessionStorage，避免角色殘留
+    localStorage.clear();
+    sessionStorage.clear();
+
+    //  即時密碼長度檢查
     $('#password').on('input', function () {
         const val = $(this).val();
 
@@ -15,7 +16,9 @@ $(document).ready(function () {
     });
 
     //  登入核心邏輯
-    function handleLogin() {
+    function handleLogin(e) {
+        // 防止表單原生刷新頁面
+        if (e) e.preventDefault();
 
         const usernameValue = $('#username').val().trim();
         const passwordValue = $('#password').val().trim();
@@ -31,9 +34,12 @@ $(document).ready(function () {
             return;
         }
 
-        $('#msg').text('ログイン中...').css('color', 'black');
+        // 提示登入中並禁用按鈕（防重複點擊）
+        const $btn = $('#confirmBtn');
+        $btn.prop('disabled', true);
+        $('#msg').text('ログイン中...').css('color', '#555');
 
-        //  關鍵：以 JSON 格式發送請求
+        //  以 JSON 格式發送請求
         $.ajax({
             url: '/api/login',
             type: 'POST',
@@ -45,7 +51,6 @@ $(document).ready(function () {
             }),
 
             success: function (result) {
-
                 if (result.success) {
                     $('#msg').css('color', 'green').text('ログイン成功！ページを移動しています...');
 
@@ -58,16 +63,19 @@ $(document).ready(function () {
                     }, 1000);
 
                 } else {
+                    $btn.prop('disabled', false);
                     $('#msg').css('color', 'red').text(result.message || 'ユーザー名またはパスワードが正しくありません！');
                 }
             },
 
             error: function (xhr) {
-
+                $btn.prop('disabled', false);
                 console.log("エラーステータス:", xhr.status);
                 console.log("レスポンス内容:", xhr.responseText);
 
-                if (xhr.status === 415) {
+                if (xhr.status === 401 || xhr.status === 400) {
+                    $('#msg').css('color', 'red').text('ユーザー名またはパスワードが正しくありません');
+                } else if (xhr.status === 415) {
                     $('#msg').css('color', 'red').text('データ形式エラー');
                 } else if (xhr.status === 500) {
                     $('#msg').css('color', 'red').text('サーバーエラーが発生しました');
@@ -78,25 +86,19 @@ $(document).ready(function () {
         });
     }
 
-    //  點擊登入按鈕事件
-    $('#confirmBtn').on('click', handleLogin);
-
-    //  密碼輸入框按下 Enter 鍵直接送出
-    $('#password').on('keypress', function (e) {
-        if (e.key === 'Enter') {
-            handleLogin();
-        }
-    });
+    //  綁定表單 submit 事件（涵蓋點擊按鈕 + 輸入框按 Enter 鍵）
+    $('#loginForm').on('submit', handleLogin);
 
     //  Modal 彈跳視窗控制
     $('#openModalBtn').on('click', function () {
         $('#loginModal').fadeIn();
         $('#msg').text('');
     });
-	// 閉じるボタン（#closeBtn）をクリックした際、ログインモーダルをフェードアウトして非表示にする
-	    $('#closeBtn').on('click', function () {
-	        $('#loginModal').fadeOut();
-	    });
+
+   
+    $('#closeBtn').on('click', function () {
+        $('#loginModal').fadeOut();
+    });
 
     // 點擊 Modal 外部陰影處關閉視窗
     $(window).on('click', function (event) {

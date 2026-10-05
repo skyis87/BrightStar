@@ -82,7 +82,7 @@ public class BsnoticesController {
                 String originalFilename = file.getOriginalFilename();
                 String savedFilename = System.currentTimeMillis() + "_" + originalFilename;
                 
-                // 🔽 修正這裡：使用絕對路徑指向專案根目錄下的 uploads 資料夾，避免 Tomcat 暫存路徑遺失問題
+                //  使用絕對路徑指向專案根目錄下的 uploads 資料夾，避免 Tomcat 暫存路徑遺失問題
                 String uploadDir = System.getProperty("user.dir") + "/uploads/";
                 File dir = new File(uploadDir);
                 if (!dir.exists()) {

@@ -53,14 +53,14 @@ public class BsnoticesUpdateController {
         try {
             notice.setId(id);
             
-            // 步驟一：取得資料庫原本的資料，用來保留舊的檔案資訊
+            // 取得資料庫原本的資料，用來保留舊的檔案資訊
             Bsnotices oldNotice = bsnoticesService.getNoticeById(id);
             if (oldNotice != null) {
                 notice.setFileName(oldNotice.getFileName());
                 notice.setFilePath(oldNotice.getFilePath());
             }
             
-            // 步驟二：如果使用者有另外選擇了新檔案，才執行儲存與覆蓋邏輯
+            // 如果使用者有另外選擇了新檔案，才執行儲存與覆蓋邏輯
             if (file != null && !file.isEmpty()) {
                 String originalFilename = file.getOriginalFilename();
                 
@@ -83,7 +83,7 @@ public class BsnoticesUpdateController {
                 notice.setFilePath("/uploads/" + savedFileName);
             }
 
-            // 步驟三：執行資料庫更新
+            // 執行資料庫更新
             bsnoticesService.updateNotice(notice);
             
             result.put("success", true);
